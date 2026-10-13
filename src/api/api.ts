@@ -1,9 +1,4 @@
-import type {
-  ChangePasswordResponse,
-  CheckAuthStatusResponse,
-  ForgotPasswordResponse,
-  LoginResponse,
-} from '../Slices/Auth/AuthSlice';
+import type { ChangePasswordResponse, CheckAuthStatusResponse, ForgotPasswordResponse, LoginResponse } from '../store/slices/auth/AuthSlice';
 import axiosClient from './axios';
 
 export interface LoginReqest {
