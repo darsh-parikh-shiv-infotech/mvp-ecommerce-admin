@@ -1,11 +1,30 @@
+import { RouterProvider } from 'react-router-dom';
+import { initFlowbite } from 'flowbite';
+import { useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
+import { useAppDispatch, useAppSelector } from './utils/hooks/hooks';
+import { checkAuthStatus } from './store/slices/auth/AuthThunk';
+import FullLoader from './components/common/FullLoader';
+import { router } from './router/Routes';
 
-const App = () => {
+function App() {
+  const { isInitializing } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(checkAuthStatus());
+  }, [dispatch]);
+
+  useEffect(() => {
+    initFlowbite();
+  }, []);
+
+  // Keep the app quiet until the initial auth check finishes
+  if (isInitializing) {
+    return <FullLoader SpinnerTitle='Loading...' />
+  }
   return (
     <>
-      <div className="text-5xl">
-        Hello World
-      </div>
+      <RouterProvider router={router} />
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -17,7 +36,7 @@ const App = () => {
         limit={3}
       />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
