@@ -1,0 +1,254 @@
+import { useEffect, useRef, useState } from 'react';
+import { useFormik } from 'formik';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { MdOutlineEmail } from 'react-icons/md';
+import { Link } from 'react-router-dom';
+import { RESEND_OTP_TIME } from '../utils/constants/constants';
+import { ChangePasswordValidation } from '../utils/validations/ChangePasswordValidation';
+
+interface BaseChangePasswordFormProps {
+  email: string;
+  loading: boolean;
+  submitHandler: (
+    email: string,
+    otp: number,
+    newPassword: string,
+    confirmNewPassword: string,
+  ) => void;
+}
+
+interface ChangePasswordFormValues {
+  otp: string[];
+  newPassword: string;
+  confirmNewPassword: string;
+}
+
+const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePasswordFormProps) => {
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const [timeLeft, setTimeLeft] = useState<number>(RESEND_OTP_TIME);
+  const [canResend, setCanResend] = useState<boolean>(false);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (timeLeft <= 0) {
+        setCanResend(true);
+        return;
+      }
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+  const handleResendOtp = async () => {
+    if (!canResend) return;
+    setTimeLeft(RESEND_OTP_TIME);
+    setCanResend(false);
+  };
+
+  const formik = useFormik<ChangePasswordFormValues>({
+    initialValues: {
+      otp: Array(6).fill(''),
+      newPassword: '',
+      confirmNewPassword: '',
+    },
+    validationSchema: ChangePasswordValidation,
+    validateOnBlur: true,
+    validateOnChange: true,
+    onSubmit: (values) => {
+      const otp = Number(values.otp.join(''));
+      submitHandler(email, otp, values.newPassword, values.confirmNewPassword);
+    },
+  });
+
+  const otpError =
+    formik.touched.otp || formik.submitCount > 0
+      ? typeof formik.errors.otp === 'string'
+        ? formik.errors.otp
+        : undefined
+      : undefined;
+  const newPasswordError =
+    formik.touched.newPassword || formik.submitCount > 0 ? formik.errors.newPassword : undefined;
+  const confirmNewPasswordError =
+    formik.touched.confirmNewPassword || formik.submitCount > 0
+      ? formik.errors.confirmNewPassword
+      : undefined;
+
+  const handleOtpChange = (index: number, value: string) => {
+    if (value !== '' && !/^\d$/.test(value)) return;
+
+    const otp = [...formik.values.otp];
+    otp[index] = value;
+    void formik.setFieldValue('otp', otp);
+
+    if (value && index < inputRefs.current.length - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    const pastedOtp = event.clipboardData.getData('text').trim();
+    if (!/^\d{6}$/.test(pastedOtp)) return;
+
+    void formik.setFieldValue('otp', pastedOtp.split(''));
+    inputRefs.current[5]?.focus();
+  };
+
+  return (
+    <form onSubmit={formik.handleSubmit} noValidate className="flex flex-col gap-4">
+      <div className="flex items-center gap-4">
+        <div className="shrink-0 bg-gray-200 p-2 rounded-full">
+          <MdOutlineEmail color="red" size={15} />
+        </div>
+        <span className="uppercase font-semibold text-2xs md:text-xs leading-0 text-gray-400">
+          Step 2 of 2 - Verify & Reset
+        </span>
+      </div>
+      <div className="flex flex-col gap-1">
+        <span className="text-md md:text-2xl font-bold">Forgot Password</span>
+        <span className="text-xs md:text-sm font-body">
+          Enter the OTP sent on {email} and set your new password.
+        </span>
+      </div>
+      <div className="flex flex-col gap-1">
+        <label htmlFor="otp-0" className="font-medium text-md md:text-sm">
+          OTP
+          <span className="text-red-600">*</span>
+        </label>
+        <div className="flex justify-center gap-1">
+          {formik.values.otp.map((digit, index) => (
+            <input
+              key={index}
+              ref={(element) => {
+                inputRefs.current[index] = element;
+              }}
+              id={`otp-${index}`}
+              name={`otp[${index}]`}
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={1}
+              value={digit}
+              aria-label={`OTP digit ${index + 1}`}
+              aria-invalid={Boolean(otpError)}
+              aria-describedby={otpError ? 'otp-error' : undefined}
+              onBlur={formik.handleBlur}
+              onChange={(event) => handleOtpChange(index, event.target.value)}
+              onPaste={handleOtpPaste}
+              onKeyDown={(event) => {
+                if (event.key === 'Backspace' && !digit && index > 0) {
+                  inputRefs.current[index - 1]?.focus();
+                }
+              }}
+              className={`h-10 w-7 md:h-12 md:w-12 rounded-lg border ${otpError ? 'border-red-600' : 'border-gray-300'} bg-white text-center text-sm md:text-lg focus:outline-none focus:ring-1 focus:ring-red-400 focus:shadow-md`}
+            />
+          ))}
+        </div>
+        {otpError ? (
+          <span id="otp-error" role="alert" className="text-sm font-normal text-red-700">
+            {otpError}
+          </span>
+        ) : null}
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="newPassword" className="font-medium text-sm">
+          New Password
+          <span className="text-red-600">*</span>
+        </label>
+        <div className="relative rounded-md">
+          <input
+            type={showNewPassword ? 'text' : 'password'}
+            id="newPassword"
+            autoComplete="new-password"
+            aria-invalid={Boolean(newPasswordError)}
+            aria-describedby={newPasswordError ? 'new-password-error' : undefined}
+            {...formik.getFieldProps('newPassword')}
+            className={`h-10 w-full rounded-lg border bg-white px-4 py-2 text-sm md:text-md ${newPasswordError ? 'border-red-600' : 'border-gray-300'} focus:outline-none focus:ring-1 focus:ring-red-400 focus:shadow-md`}
+            placeholder="Enter your new password"
+          />
+          <button
+            type="button"
+            onClick={() => setShowNewPassword((visible) => !visible)}
+            aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+            className="absolute inset-y-0 right-0 flex items-center px-4 text-red-500 hover:text-red-700"
+          >
+            {showNewPassword ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
+          </button>
+        </div>
+        {newPasswordError ? (
+          <span id="new-password-error" role="alert" className="text-sm font-normal text-red-700">
+            {newPasswordError}
+          </span>
+        ) : null}
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="confirmNewPassword" className="font-medium text-sm">
+          Confirm New Password
+          <span className="text-red-600">*</span>
+        </label>
+        <div className="relative rounded-md">
+          <input
+            type={showConfirmPassword ? 'text' : 'password'}
+            id="confirmNewPassword"
+            autoComplete="new-password"
+            aria-invalid={Boolean(confirmNewPasswordError)}
+            aria-describedby={confirmNewPasswordError ? 'confirm-new-password-error' : undefined}
+            {...formik.getFieldProps('confirmNewPassword')}
+            className={`h-10 w-full rounded-lg border bg-white px-4 py-2 text-sm md:text-md ${confirmNewPasswordError ? 'border-red-600' : 'border-gray-300'} focus:outline-none focus:ring-1 focus:ring-red-400 focus:shadow-md`}
+            placeholder="Enter your new password again"
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword((visible) => !visible)}
+            aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+            className="absolute inset-y-0 right-0 flex items-center px-4 text-red-500 hover:text-red-700"
+          >
+            {showConfirmPassword ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
+          </button>
+        </div>
+        {confirmNewPasswordError ? (
+          <span
+            id="confirm-new-password-error"
+            role="alert"
+            className="text-sm font-normal text-red-700"
+          >
+            {confirmNewPasswordError}
+          </span>
+        ) : null}
+      </div>
+      <div className="w-full text-end">
+        {canResend ? (
+          <button
+            className="font-medium text-sm text-red-600 hover:border-b"
+            onClick={handleResendOtp}
+          >
+            Resend OTP
+          </button>
+        ) : (
+          <p className="text-sm mb-2">
+            Didn't you get the code? Resend in {Math.floor(timeLeft / 60)}:{timeLeft % 60}
+          </p>
+        )}
+      </div>
+
+      <button
+        type="submit"
+        className={`rounded-lg bg-linear-to-r from-red-700 to-red-800 p-2 font-bold text-white shadow-rose-400 hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-md ${loading && 'opacity-50'}`}
+        disabled={loading}
+      >
+        Update Password
+      </button>
+      <div className="flex justify-center">
+        <Link to={'/login'} className="font-medium text-sm text-red-600 hover:border-b">
+          Back To Sign In?
+        </Link>
+      </div>
+    </form>
+  );
+};
+
+export default BaseChangePasswordForm;
