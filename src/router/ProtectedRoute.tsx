@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import type { AuthState } from '../store/slices/auth/AuthSlice';
+import type { AuthState } from '../store/slices/auth/authSlice';
 import { useAppSelector } from '../utils/hooks/hooks';
 import FullLoader from '../components/common/FullLoader';
 const ProtectedRoute = () => {

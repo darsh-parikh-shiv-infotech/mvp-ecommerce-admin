@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import type { ChangePasswordResponse, CheckAuthStatusResponse, ForgotPasswordResponse, LoginResponse } from './AuthSlice';
+import type { AuthUser } from './authSlice';
 import { ApiError, toApiErrorPayload, type ApiErrorPayload } from '../../../api/apiError';
 import {
   changePasswordApi,
@@ -10,6 +10,27 @@ import {
   type ForgotPasswordRequest,
   type LoginReqest,
 } from '../../../api/api';
+
+export interface LoginResponse {
+  data: {
+    user: AuthUser | null;
+    token: string;
+  };
+  message: string;
+}
+export interface ForgotPasswordResponse {
+  message: string;  
+  statusCode: number;
+}
+export interface ChangePasswordResponse {
+  message: string;
+  statusCode: number;
+}
+export interface CheckAuthStatusResponse {
+  data: AuthUser;
+  message: string;
+}
+
 
 export const loginUser = createAsyncThunk<
   LoginResponse,
