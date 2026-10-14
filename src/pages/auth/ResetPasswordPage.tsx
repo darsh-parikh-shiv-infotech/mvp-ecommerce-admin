@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
 import { changePassword, forgotPassword } from '../../store/slices/auth/AuthThunk';
-import { clearAuthError } from '../../store/slices/auth/AuthSlice';
+import { clearAuthError } from '../../store/slices/auth/authSlice';
 import BaseForgotPasswordForm from '../../components/BaseForgotPasswordForm';
 import BaseChangePasswordForm from '../../components/BaseChangePasswordForm';
 import BaseAppInfoAuth from '../../components/BaseAppInfoAuth';

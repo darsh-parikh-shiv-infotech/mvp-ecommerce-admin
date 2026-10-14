@@ -3,8 +3,8 @@ import { LuShoppingCart } from 'react-icons/lu';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
-import { loginUser } from '../../store/slices/auth/AuthThunk';
-import { clearAuthError } from '../../store/slices/auth/AuthSlice';
+import { checkAuthStatus, loginUser } from '../../store/slices/auth/AuthThunk';
+import { clearAuthError } from '../../store/slices/auth/authSlice';
 import BaseLoginForm from '../../components/BaseLoginForm';
 import BaseAppInfoAuth from '../../components/BaseAppInfoAuth';
 
@@ -16,7 +16,13 @@ const LoginPage = () => {
   const submitHandler = async (email: string, password: string) => {
     const result = await dispatch(loginUser({ email, password }));
     if (loginUser.fulfilled.match(result)) {
-      return navigate('/');
+      const authStatusResult = await await dispatch(checkAuthStatus())
+      if (checkAuthStatus.fulfilled.match(authStatusResult)) {
+        return navigate('/');
+      } else if (checkAuthStatus.rejected.match(authStatusResult)) {
+        toast.error(authStatusResult.payload?.message ?? authStatusResult.error.message ?? 'Login Failed! Try Again');
+        dispatch(clearAuthError());
+      }
     }
     if (loginUser.rejected.match(result)) {
       toast.error(result.payload?.message ?? result.error.message ?? 'Login Failed! Try Again');
