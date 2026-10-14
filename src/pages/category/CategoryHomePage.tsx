@@ -1,26 +1,37 @@
 import { useEffect, useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../utils/hooks/hooks"
-import { listCategory } from "../../store/slices/category/categoryThunk";
+import { deleteCategory, listCategory } from "../../store/slices/category/categoryThunk";
 import Spinner from "../../components/common/Spinner";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import moment from 'moment';
 
-const CategoryHome = () => {
+const CategoryHomePage = () => {
   const { data, currentPage, numberOfRows, pageSize, totalItems, totalPages, isLoading, error } = useAppSelector((state) => state.category)
   const dispatch = useAppDispatch();
 
   const [page, setPage] = useState<number>(1);
-  useEffect(() => {
-    async function fetchData(page: number) {
-      const result = await dispatch(listCategory({ "limit": 5, "page": page, "search": "", "sortKey": "id", "sortValue": "asc" }))
-      if (listCategory.rejected.match(result)) {
-        toast.error(result.payload?.message || "Fetching Category Data Failed")
-      }
+
+  async function fetchData(page: number) {
+    const result = await dispatch(listCategory({ "limit": 5, "page": page, "search": "", "sortKey": "id", "sortValue": "asc" }))
+    if (listCategory.rejected.match(result)) {
+      toast.error(result.payload?.message || "Fetching Category Data Failed")
     }
+  }
+  const deleteHandler = async (id: number) => {
+    const result = await dispatch(deleteCategory({ id }))
+    if (deleteCategory.rejected.match(result)) {
+      toast.error(result.payload?.message || "Deleting Category Operation Failed")
+    }
+    if (deleteCategory.fulfilled.match(result)) {
+      toast.success(result.payload.message || "Category Deleted")
+      fetchData(page)
+    }
+    return
+  }
+  useEffect(() => {
     fetchData(page)
   }, [page])
-
   const pageNumbers = [];
 
   const endRange = Math.min(currentPage + 3, totalPages);
@@ -35,6 +46,9 @@ const CategoryHome = () => {
       <span className="inline-block text-2xl font-semibold my-2 leading-5">View All Category</span>
 
       <div className="relative overflow-x-auto mt-5 bg-red-50 shadow-xs rounded-base border border-default">
+        <div className="flex justify-end my-2 mx-2">
+          <Link to={"/category/add"} className="bg-blue-200 p-2 rounded-md font-semibold text-sm">Add New Category</Link> 
+        </div>
         <table className="w-full text-sm text-left rtl:text-right text-body">
           <thead className="text-sm text-body bg-red-100 border-b border-default-medium">
             <tr>
@@ -57,10 +71,10 @@ const CategoryHome = () => {
               isLoading && <tr><td colSpan={4}><Spinner /></td></tr>
             }
             {
-              error && <tr><td colSpan={4} className="font-semibold text-center p-2">{error}</td></tr>
+              !isLoading && error && <tr><td colSpan={4} className="font-semibold text-center p-2">{error}</td></tr>
             }
             {
-              data && data.map((row, index) => {
+              !isLoading && data && data.map((row, index) => {
                 return <tr key={row.id} className={`${index % 2 == 0 ? "bg-neutral-primary-soft" : "bg-red-50"} border-b border-default hover:bg-neutral-secondary-medium`}>
                   <th scope="row" className="px-6 py-4 font-medium text-heading whitespace-nowrap">
                     {row.id}
@@ -71,8 +85,9 @@ const CategoryHome = () => {
                   <td className="px-6 py-4">
                     {moment(new Date(row.createdAt).getTime()).utc().format("DD-MM-YYYY")}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="flex flex-row gap-2 px-6 py-4">
                     <Link to={`/category/edit/${row.id}`} className="font-medium text-fg-brand hover:underline">Edit</Link>
+                    <button className="font-medium text-red-600 hover:underline hover:cursor-pointer" onClick={() => deleteHandler(row.id)}>Delete</button>
                   </td>
                 </tr>
               })
@@ -117,4 +132,4 @@ const CategoryHome = () => {
   )
 }
 
-export default CategoryHome
+export default CategoryHomePage

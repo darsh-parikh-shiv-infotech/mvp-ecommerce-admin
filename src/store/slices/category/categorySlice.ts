@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { listCategory } from "./categoryThunk";
+import { addCategory, deleteCategory, editCategory, listCategory, viewSingleCategory } from "./categoryThunk";
 
 export interface Category {
     id: number,
@@ -9,6 +9,7 @@ export interface Category {
 }
 interface CategoryState {
     data: Category[],
+    selectedCategory:Category|null;
     isLoading: boolean,
     error: string | null,
     totalItems: number,
@@ -19,6 +20,7 @@ interface CategoryState {
 }
 const initialState: CategoryState = {
     data: [],
+    selectedCategory:null,
     isLoading: true,
     error: null,
     totalItems: 1,
@@ -63,6 +65,48 @@ const categorySlice = createSlice({
             state.pageSize=0;
             state.totalItems=0;
             state.totalPages=0
+        })
+        .addCase(viewSingleCategory.pending,(state)=>{
+            state.isLoading=true
+            state.selectedCategory=null
+        })
+        .addCase(viewSingleCategory.fulfilled,(state,action)=>{
+            state.isLoading=false
+            state.selectedCategory=action.payload.data
+        })
+        .addCase(viewSingleCategory.rejected,(state,action)=>{
+            state.isLoading=false;
+            state.error=action.payload?.message ?? action.error.message ?? 'Selecting Category Operation Failed.';
+        })
+        .addCase(addCategory.pending,(state)=>{
+            state.isLoading=true
+        })
+        .addCase(addCategory.fulfilled,(state)=>{
+            state.isLoading=false
+        })
+        .addCase(addCategory.rejected,(state,action)=>{
+            state.isLoading=false;
+            state.error=action.payload?.message ?? action.error.message ?? 'Adding Category Operation Failed.';
+        })
+        .addCase(editCategory.pending,(state)=>{
+            state.isLoading=true
+        })
+        .addCase(editCategory.fulfilled,(state)=>{
+            state.isLoading=false
+        })
+        .addCase(editCategory.rejected,(state,action)=>{
+            state.isLoading=false;
+            state.error=action.payload?.message ?? action.error.message ?? 'Editing Category Operation Failed.';
+        })
+        .addCase(deleteCategory.pending,(state)=>{
+            state.isLoading=true
+        })
+        .addCase(deleteCategory.fulfilled,(state)=>{
+            state.isLoading=false
+        })
+        .addCase(deleteCategory.rejected,(state,action)=>{
+            state.isLoading=false;
+            state.error=action.payload?.message ?? action.error.message ?? 'Deleting Category Operation Failed.';
         })
     }
 })
