@@ -1,5 +1,4 @@
 import { RouterProvider } from 'react-router-dom';
-import { initFlowbite } from 'flowbite';
 import { useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { useAppDispatch, useAppSelector } from './utils/hooks/hooks';
@@ -13,10 +12,6 @@ function App() {
   useEffect(() => {
     dispatch(checkAuthStatus());
   }, [dispatch]);
-
-  useEffect(() => {
-    initFlowbite();
-  }, []);
 
   // Keep the app quiet until the initial auth check finishes
   if (isInitializing) {

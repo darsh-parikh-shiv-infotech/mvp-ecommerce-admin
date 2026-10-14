@@ -8,26 +8,6 @@ export interface AuthUser {
   profile_image: string;
 }
 
-export interface LoginResponse {
-  data: {
-    user: AuthUser | null;
-    token: string;
-  };
-  message: string;
-}
-export interface ForgotPasswordResponse {
-  message: string;  
-  statusCode: number;
-}
-export interface ChangePasswordResponse {
-  message: string;
-  statusCode: number;
-}
-export interface CheckAuthStatusResponse {
-   data: AuthUser;
-  message: string;
-}
-
 export interface AuthState {
   user: AuthUser | null;
   token: string | null;

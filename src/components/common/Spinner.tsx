@@ -1,5 +1,5 @@
 interface SpinnerProp{
-    SpinnerTitle:string
+    SpinnerTitle?:string
 }
 const Spinner = ({SpinnerTitle="Loading..."}:SpinnerProp) => {
   return (

@@ -1,4 +1,5 @@
-import type { ChangePasswordResponse, CheckAuthStatusResponse, ForgotPasswordResponse, LoginResponse } from '../store/slices/auth/AuthSlice';
+import type { ChangePasswordResponse, CheckAuthStatusResponse, ForgotPasswordResponse, LoginResponse } from '../store/slices/auth/AuthThunk';
+import type { ListCategoryResponse, ListCategoyRequest } from '../store/slices/category/categoryThunk';
 import axiosClient from './axios';
 
 export interface LoginReqest {
@@ -51,3 +52,12 @@ export const checkAuthStatusApi = async (): Promise<CheckAuthStatusResponse> => 
 
   return response.data;
 };
+
+export const listCategoryApi = async(reqBody: ListCategoyRequest,):Promise<ListCategoryResponse>=>{
+  const response = await axiosClient.post<ListCategoryResponse>(
+    '/attribute/list-Of-attributes',
+    reqBody
+  );
+
+  return response.data;
+}
