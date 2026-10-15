@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import type { product } from "./productSlice";
+import type { attribute, product } from "./productSlice";
 import { toApiErrorPayload, type ApiErrorPayload } from "../../../api/apiError";
-import { changeStatusProductApi, listProductApi, viewProductApi } from "../../../api/api";
+import { changeStatusProductApi, imageUploadApi, listAttributeApi, listProductApi, viewProductApi } from "../../../api/api";
 
 export interface listProductRequest {
     sortValue?: "desc" | "asc" | null,
@@ -21,6 +21,10 @@ export interface listProductResponse {
     };
     message: string
 }
+export interface listAttributeResponse {
+    data: { rows: attribute[] | [] };
+    message: string
+}
 export interface viewProductRequest {
     id: number
 }
@@ -30,9 +34,17 @@ export interface viewProductResponse {
 }
 export interface changeStatusProductRequest {
     id: number,
-    status:"active"|"inactive"
+    status: "active" | "inactive"
 }
 export interface changeStatusProductResponse {
+    message: string
+}
+export type imageUploadRequest = File
+
+export interface imageUploadResponse {
+    data: {
+        image: { fileName: string, url: string }[]
+    };
     message: string
 }
 
@@ -43,6 +55,18 @@ export const listProduct = createAsyncThunk<
 >("product/listProduct", async (body, { rejectWithValue }) => {
     try {
         const response = await listProductApi(body);
+        return response;
+    } catch (error: unknown) {
+        return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'))
+    }
+})
+export const listAttribute = createAsyncThunk<
+    listAttributeResponse,
+    void,
+    { rejectValue: ApiErrorPayload }
+>("product/listAttribute", async (_, { rejectWithValue }) => {
+    try {
+        const response = await listAttributeApi();
         return response;
     } catch (error: unknown) {
         return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'))
@@ -68,6 +92,18 @@ export const changeStatusProduct = createAsyncThunk<
     try {
         const response = await changeStatusProductApi(body);
         return response;
+    } catch (error: unknown) {
+        return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'))
+    }
+})
+export const imageUpload = createAsyncThunk<
+    imageUploadResponse,
+    imageUploadRequest,
+    { rejectValue: ApiErrorPayload }
+>("common/imageUpload", async (body, { rejectWithValue }) => {
+    try {
+        const response = await imageUploadApi(body);
+        return response
     } catch (error: unknown) {
         return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'))
     }

@@ -1,6 +1,6 @@
 import type { ChangePasswordRequest, ChangePasswordResponse, CheckAuthStatusResponse, ForgotPasswordRequest, ForgotPasswordResponse, LoginReqest, LoginResponse } from '../store/slices/auth/AuthThunk';
 import type { DeleteCategoryResponse, DeleteCategoryRequest, ListCategoryResponse, AddCategoryRequest, AddCategoryResponse, EditCategoryRequest, EditCategoryResponse, ViewSingleCategoryRequest, ViewSingleCategoryResponse, ListCategoryRequest } from '../store/slices/category/categoryThunk';
-import type { changeStatusProductRequest, changeStatusProductResponse, listProductRequest, listProductResponse, viewProductRequest, viewProductResponse } from '../store/slices/product/productThunk';
+import type { changeStatusProductRequest, changeStatusProductResponse, imageUploadRequest, imageUploadResponse, listAttributeResponse, listProductRequest, listProductResponse, viewProductRequest, viewProductResponse } from '../store/slices/product/productThunk';
 import axiosClient from './axios';
 
 // Auth Api
@@ -88,6 +88,13 @@ export const listProductApi = async (reqBody: listProductRequest): Promise<listP
 
   return response.data;
 }
+export const listAttributeApi = async (): Promise<listAttributeResponse> => {
+  const response = await axiosClient.post<listAttributeResponse>(
+    '/attribute/list-of-attribute-set',{}
+  );
+
+  return response.data;
+}
 export const viewProductApi = async (reqBody: viewProductRequest): Promise<viewProductResponse> => {
   const response = await axiosClient.get<viewProductResponse>(
     `/product/view-product/${reqBody.id}`
@@ -101,5 +108,22 @@ export const changeStatusProductApi = async (reqBody: changeStatusProductRequest
     {status:reqBody.status}
   );
 
+  return response.data;
+}
+
+
+export const imageUploadApi = async (file: imageUploadRequest): Promise<imageUploadResponse> => {
+  const formData = new FormData();
+  formData.append('files', file);
+
+  const response = await axiosClient.post<imageUploadResponse>(
+    `/common/fileUpload`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  );
   return response.data;
 }

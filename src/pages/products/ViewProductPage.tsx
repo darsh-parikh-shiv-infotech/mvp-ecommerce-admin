@@ -51,7 +51,7 @@ const ViewProductPage = () => {
               </tr>
               <tr className="text-left">
                 <th className="w-1/3 py-2 font-semibold">Attribute :</th>
-                <td className="w-2/3 py-2">{selectedProduct.attribute_set.name}</td>
+                <td className="w-2/3 py-2">{selectedProduct.attribute_set[0].name}</td>
               </tr>
               <tr className="text-left">
                 <th className="w-1/3 py-2 font-semibold">Description :</th>

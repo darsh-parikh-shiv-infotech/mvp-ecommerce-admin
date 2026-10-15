@@ -20,7 +20,6 @@ axiosClient.interceptors.request.use(
     if (token) {
       config.headers.set('Authorization', `Bearer ${token}`);
     }
-
     return config;
   },
   (error: unknown) => Promise.reject(error),
@@ -33,7 +32,7 @@ axiosClient.interceptors.response.use(
     if (applicationError) {
       return Promise.reject(applicationError);
     }
-
+    
     return response;
   },
 

@@ -10,6 +10,7 @@ import CategoryHomePage from '../pages/category/CategoryHomePage';
 import CategoryAddPage from '../pages/category/CategoryAddPage';
 import CategoryEditPage from '../pages/category/CategoryEditPage';
 import ViewProductPage from '../pages/products/ViewProductPage';
+import AddProductPage from '../pages/products/AddProductPage';
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
@@ -25,6 +26,7 @@ export const router = createBrowserRouter(
 
           <Route path={"product"} element={<ProductHome />} />
           <Route path={"product/view/:id"} element={<ViewProductPage />} />
+          <Route path={"product/add"} element={<AddProductPage />} />
 
         </Route>
       </Route>

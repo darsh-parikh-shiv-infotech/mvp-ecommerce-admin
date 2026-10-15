@@ -1,18 +1,20 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { changeStatusProduct, listProduct, viewProduct } from "./productThunk";
+import { changeStatusProduct, imageUpload, listAttribute, listProduct, viewProduct } from "./productThunk";
 
-export interface attributeSet {
-    id: number,
-    name: string
+export interface attribute{
+    id:number,
+    name:string
 }
 export interface variant{
     id:number,
     title:string,
-    product_variant_image: string[],
+    product_variant_image?: string[],
     code:string,
+    fake_price:number,
     price:number,
     available_quantity:number,
-    status:string
+    on_hand_quantity:number,
+    status?:string
 }
 export interface product {
     id: number,
@@ -24,11 +26,12 @@ export interface product {
     product_image: string,
     min_price: number,
     max_price: number,
-    attribute_set: attributeSet
+    attribute_set: attribute[]
 }
 interface productState {
     data: product[],
     selectedProduct: product | null,
+    attributeSetData:attribute[],
     isLoading: boolean,
     error: string | null,
     totalItems: number,
@@ -40,6 +43,7 @@ interface productState {
 const initialState: productState = {
     data: [],
     selectedProduct: null,
+    attributeSetData:[],
     isLoading: true,
     error: null,
     totalItems: 1,
@@ -85,6 +89,17 @@ const productSlice = createSlice({
                 state.totalPages = 0
             })
 
+             .addCase(listAttribute.pending, (state) => {
+                state.error = null
+            })
+            .addCase(listAttribute.fulfilled, (state,action) => {
+                state.attributeSetData = action.payload?.data?.rows || []
+            })
+            .addCase(listAttribute.rejected, (state,action) => {
+                state.error = action.payload?.message ?? action.error.message ?? 'Fetching Attributes Data Failed.';
+            })
+
+
             .addCase(viewProduct.pending, (state) => {
                 state.isLoading = true
                 state.selectedProduct = null
@@ -112,6 +127,13 @@ const productSlice = createSlice({
             .addCase(changeStatusProduct.rejected, (state,action) => {
                 state.isLoading = false
                 state.error = action.payload?.message ?? action.error.message ?? 'Fetching Single Product Data Failed.';
+            })
+
+            .addCase(imageUpload.pending, (state) => {
+                state.error = null
+            })
+            .addCase(imageUpload.rejected, (state,action) => {
+                state.error = action.payload?.message ?? action.error.message ?? 'File Upload Failed.';
             })
     }
 })

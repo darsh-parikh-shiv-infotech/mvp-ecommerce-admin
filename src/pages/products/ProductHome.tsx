@@ -18,8 +18,8 @@ const ProductHome = () => {
       toast.error(result.payload?.message || "Fetching Category Data Failed")
     }
   }
-  async function toggleStatusHandler(id:number,status:"active"|"inactive"){
-    const result = await dispatch(changeStatusProduct({id,status}))
+  async function toggleStatusHandler(id: number, status: "active" | "inactive") {
+    const result = await dispatch(changeStatusProduct({ id, status }))
     if (changeStatusProduct.rejected.match(result)) {
       toast.error(result.payload?.message || "Changing Product Status Failed")
     }
@@ -38,12 +38,13 @@ const ProductHome = () => {
   for (let i = startRange; i <= endRange; i++) {
     pageNumbers.push(i);
   }
-  
+
   return (
     <>
-      <span className="inline-block text-2xl font-semibold my-2 leading-5">View All Product</span>
-      <div className="relative overflow-x-auto mt-5 bg-red-50 shadow-xs rounded-base border border-default">
-        <div className="flex md:justify-end my-2 mx-2">
+
+      <div className="relative overflow-x-auto my-4">
+        <div className="flex gap-2 justify-between my-4 mx-2">
+          <span className="text-3xl font-bold">View All Products</span>
           <Link to={"/product/add"} className="bg-blue-200 p-2 rounded-md font-semibold text-sm">Add New Product</Link>
         </div>
         <table className="w-full text-sm text-left rtl:text-right text-body">
@@ -92,7 +93,7 @@ const ProductHome = () => {
                     {row.title}
                   </td>
                   <td className="px-6 py-4">
-                    {row.attribute_set.name}
+                    {row.attribute_set[0].name}
                   </td>
                   <td className="px-6 py-4">
                     {row.status ? row.status.toString().charAt(0).toUpperCase() + row.status.toString().slice(1) : ""}
@@ -105,7 +106,7 @@ const ProductHome = () => {
                       <Link to={`/product/view/${row.id}`} className="font-medium text-fg-success hover:underline">View</Link>
                       <Link to={`/product/edit/${row.id}`} className="font-medium text-fg-brand hover:underline">Edit</Link>
                     </div>
-                    <button className="font-medium text-red-600 hover:underline hover:cursor-pointer" onClick={()=>toggleStatusHandler(row.id,row.status=="active"?"inactive":"active")}>Change Status</button>
+                    <button className="font-medium text-red-600 hover:underline hover:cursor-pointer" onClick={() => toggleStatusHandler(row.id, row.status == "active" ? "inactive" : "active")}>Change Status</button>
                   </td>
                 </tr>
               })
