@@ -48,7 +48,7 @@ const categorySlice = createSlice({
         })
         .addCase(listCategory.fulfilled,(state,action)=>{
             state.isLoading=false;
-            state.data=action.payload?.data?.rows;
+            state.data=action.payload?.data?.rows||[];
             state.error=null;
             state.currentPage=action.payload?.data?.currentPage;
             state.numberOfRows=action.payload?.data?.numberOfRows;

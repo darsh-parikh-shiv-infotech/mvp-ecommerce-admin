@@ -13,7 +13,7 @@ const MainLayout = () => {
       <Navbar/>
       <Sidebar/>
     
-      <div className="h-dvh p-4 sm:ml-64 mt-14 bg-red-100/50">
+      <div className="h-dvh p-4 sm:ml-50 mt-14 bg-red-100/50">
         <Outlet/>
       </div>
 

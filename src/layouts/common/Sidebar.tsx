@@ -14,7 +14,7 @@ const NavLinks: { text: string; linkPath: string; logo: ReactNode }[] = [
     text: "Categories",
     linkPath: "/category",
     logo:
-      <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6.025A7.5 7.5 0 1 0 17.975 14H10V6.025Z" /><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.5 3c-.169 0-.334.014-.5.025V11h7.975c.011-.166.025-.331.025-.5A7.5 7.5 0 0 0 13.5 3Z" /></svg>
+      <svg className="shrink-0 w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6.025A7.5 7.5 0 1 0 17.975 14H10V6.025Z" /><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.5 3c-.169 0-.334.014-.5.025V11h7.975c.011-.166.025-.331.025-.5A7.5 7.5 0 0 0 13.5 3Z" /></svg>
   },
 ]
 const Sidebar = () => {
@@ -23,7 +23,7 @@ const Sidebar = () => {
     dispatch(logout())
   }
   return (
-    <aside id="top-bar-sidebar" className="fixed top-12 left-0 z-40 w-64 h-full transition-transform -translate-x-full sm:translate-x-0 bg-red-100" aria-label="Sidebar">
+    <aside id="top-bar-sidebar" className="fixed top-12 left-0 z-40 w-55 sm:w-50 h-full transition-transform -translate-x-full sm:translate-x-0 bg-red-100" aria-label="Sidebar">
       <div className="h-[90%] flex flex-col justify-between px-3 py-4 overflow-y-auto border-e border-default">
         <ul className="space-y-2 font-medium">
           {

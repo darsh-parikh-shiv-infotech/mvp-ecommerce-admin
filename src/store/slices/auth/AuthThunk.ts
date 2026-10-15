@@ -6,11 +6,13 @@ import {
   checkAuthStatusApi,
   forgotPasswordApi,
   loginApi,
-  type ChangePasswordRequest,
-  type ForgotPasswordRequest,
-  type LoginReqest,
 } from '../../../api/api';
 
+export interface LoginReqest {
+  email: string;
+  password: string;
+  role?: 'Admin';
+}
 export interface LoginResponse {
   data: {
     user: AuthUser | null;
@@ -18,9 +20,18 @@ export interface LoginResponse {
   };
   message: string;
 }
+export interface ForgotPasswordRequest {
+  email: string;
+}
 export interface ForgotPasswordResponse {
   message: string;  
   statusCode: number;
+}
+export interface ChangePasswordRequest {
+  email: string;
+  otp: number;
+  newPassword: string;
+  confirmPassword: string;
 }
 export interface ChangePasswordResponse {
   message: string;

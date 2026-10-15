@@ -1,27 +1,14 @@
-import type { ChangePasswordResponse, CheckAuthStatusResponse, ForgotPasswordResponse, LoginResponse } from '../store/slices/auth/AuthThunk';
+import type { ChangePasswordRequest, ChangePasswordResponse, CheckAuthStatusResponse, ForgotPasswordRequest, ForgotPasswordResponse, LoginReqest, LoginResponse } from '../store/slices/auth/AuthThunk';
 import type { DeleteCategoryResponse, DeleteCategoryRequest, ListCategoryResponse, AddCategoryRequest, AddCategoryResponse, EditCategoryRequest, EditCategoryResponse, ViewSingleCategoryRequest, ViewSingleCategoryResponse, ListCategoryRequest } from '../store/slices/category/categoryThunk';
+import type { changeStatusProductRequest, changeStatusProductResponse, listProductRequest, listProductResponse, viewProductRequest, viewProductResponse } from '../store/slices/product/productThunk';
 import axiosClient from './axios';
 
-export interface LoginReqest {
-  email: string;
-  password: string;
-  role?: 'Admin';
-}
-export interface ForgotPasswordRequest {
-  email: string;
-}
-export interface ChangePasswordRequest {
-  email: string;
-  otp: number;
-  newPassword: string;
-  confirmPassword: string;
-}
+// Auth Api
 export const loginApi = async (credentials: LoginReqest): Promise<LoginResponse> => {
   const response = await axiosClient.post<LoginResponse>('/auth-user/login', credentials);
 
   return response.data;
 };
-
 export const forgotPasswordApi = async (
   reqBody: ForgotPasswordRequest,
 ): Promise<ForgotPasswordResponse> => {
@@ -32,7 +19,6 @@ export const forgotPasswordApi = async (
 
   return response.data;
 };
-
 export const changePasswordApi = async (
   reqBody: ChangePasswordRequest,
 ): Promise<ChangePasswordResponse> => {
@@ -43,8 +29,6 @@ export const changePasswordApi = async (
 
   return response.data;
 };
-
-
 export const checkAuthStatusApi = async (): Promise<CheckAuthStatusResponse> => {
   const response = await axiosClient.get<CheckAuthStatusResponse>(
     '/auth-user/viewProfile'
@@ -53,6 +37,7 @@ export const checkAuthStatusApi = async (): Promise<CheckAuthStatusResponse> => 
   return response.data;
 };
 
+// Category Api
 export const listCategoryApi = async (reqBody: ListCategoryRequest,): Promise<ListCategoryResponse> => {
   const response = await axiosClient.post<ListCategoryResponse>(
     '/attribute/list-Of-attributes',
@@ -89,6 +74,31 @@ export const editCategoryApi = async (body: EditCategoryRequest): Promise<EditCa
 export const deleteCategoryApi = async (param: DeleteCategoryRequest): Promise<DeleteCategoryResponse> => {
   const response = await axiosClient.delete<DeleteCategoryResponse>(
     `/attribute/delete-attribute/${param.id}`
+  );
+
+  return response.data;
+}
+
+// Product Api
+export const listProductApi = async (reqBody: listProductRequest): Promise<listProductResponse> => {
+  const response = await axiosClient.post<listProductResponse>(
+    '/product/list-Of-products',
+    reqBody
+  );
+
+  return response.data;
+}
+export const viewProductApi = async (reqBody: viewProductRequest): Promise<viewProductResponse> => {
+  const response = await axiosClient.get<viewProductResponse>(
+    `/product/view-product/${reqBody.id}`
+  );
+
+  return response.data;
+}
+export const changeStatusProductApi = async (reqBody: changeStatusProductRequest): Promise<changeStatusProductResponse> => {
+  const response = await axiosClient.put<changeStatusProductResponse>(
+    `/product/update-product-status/${reqBody.id}`,
+    {status:reqBody.status}
   );
 
   return response.data;

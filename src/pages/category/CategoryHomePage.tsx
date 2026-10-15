@@ -42,7 +42,7 @@ const CategoryHomePage = () => {
   }
 
   return (
-    <div>
+    <>
       <span className="inline-block text-2xl font-semibold my-2 leading-5">View All Category</span>
 
       <div className="relative overflow-x-auto mt-5 bg-red-50 shadow-xs rounded-base border border-default">
@@ -128,7 +128,7 @@ const CategoryHomePage = () => {
         }
       </div>
 
-    </div>
+    </>
   )
 }
 
