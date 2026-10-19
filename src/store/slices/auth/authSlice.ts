@@ -22,7 +22,7 @@ const initialState: AuthState = {
   user: null,
   token: null,
   isAuthenticated: false,
-  isInitializing:true,
+  isInitializing: true,
   loading: false,
   error: null,
 };
@@ -41,7 +41,7 @@ const authSlice = createSlice({
       localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
       state.user = null;
       state.isAuthenticated = false;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -61,7 +61,8 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
 
-        state.error = action.payload?.message ?? action.error.message ?? AUTH_STATE_ERROR_MESSAGES.LOGIN_FAILED;
+        state.error =
+          action.payload?.message ?? action.error.message ?? AUTH_STATE_ERROR_MESSAGES.LOGIN_FAILED;
 
         state.isAuthenticated = false;
         state.user = null;
@@ -80,7 +81,10 @@ const authSlice = createSlice({
       .addCase(forgotPassword.rejected, (state, action) => {
         state.loading = false;
 
-        state.error = action.payload?.message ?? action.error.message ?? AUTH_STATE_ERROR_MESSAGES.FORGOT_PASSWORD_FAILED;
+        state.error =
+          action.payload?.message ??
+          action.error.message ??
+          AUTH_STATE_ERROR_MESSAGES.FORGOT_PASSWORD_FAILED;
       })
 
       .addCase(changePassword.pending, (state) => {
@@ -95,7 +99,10 @@ const authSlice = createSlice({
       .addCase(changePassword.rejected, (state, action) => {
         state.loading = false;
 
-        state.error = action.payload?.message ?? action.error.message ?? AUTH_STATE_ERROR_MESSAGES.CHANGE_PASSWORD_FAILED;
+        state.error =
+          action.payload?.message ??
+          action.error.message ??
+          AUTH_STATE_ERROR_MESSAGES.CHANGE_PASSWORD_FAILED;
       })
 
       .addCase(checkAuthStatus.fulfilled, (state, action) => {

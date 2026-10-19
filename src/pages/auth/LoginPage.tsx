@@ -17,16 +17,22 @@ const LoginPage = () => {
   const submitHandler = async (email: string, password: string) => {
     const result = await dispatch(loginUser({ email, password }));
     if (loginUser.fulfilled.match(result)) {
-      const authStatusResult = await await dispatch(checkAuthStatus())
+      const authStatusResult = await await dispatch(checkAuthStatus());
       if (checkAuthStatus.fulfilled.match(authStatusResult)) {
         return navigate(ROUTES.HOME);
       } else if (checkAuthStatus.rejected.match(authStatusResult)) {
-        toast.error(authStatusResult.payload?.message ?? authStatusResult.error.message ?? AUTH_ERROR_MESSAGES.LOGIN_FAILED);
+        toast.error(
+          authStatusResult.payload?.message ??
+            authStatusResult.error.message ??
+            AUTH_ERROR_MESSAGES.LOGIN_FAILED,
+        );
         dispatch(clearAuthError());
       }
     }
     if (loginUser.rejected.match(result)) {
-      toast.error(result.payload?.message ?? result.error.message ?? AUTH_ERROR_MESSAGES.LOGIN_FAILED);
+      toast.error(
+        result.payload?.message ?? result.error.message ?? AUTH_ERROR_MESSAGES.LOGIN_FAILED,
+      );
       dispatch(clearAuthError());
     }
 

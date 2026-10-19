@@ -45,7 +45,10 @@ export const getApiResponseMessage = getMessage;
 export const getApplicationApiError = (value: unknown): ApiError | undefined => {
   const failedResponse = getResponseObjects(value).find((responseObject) => {
     const statusCode = getStatusCode(responseObject.statusCode);
-    return statusCode !== undefined && (statusCode < StatusCodes.OK || statusCode >= StatusCodes.MULTIPLE_CHOICES);
+    return (
+      statusCode !== undefined &&
+      (statusCode < StatusCodes.OK || statusCode >= StatusCodes.MULTIPLE_CHOICES)
+    );
   });
 
   if (!failedResponse) return undefined;

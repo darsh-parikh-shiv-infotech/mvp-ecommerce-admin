@@ -39,12 +39,11 @@ const BaseAppInfoAuth = () => {
             <LuShoppingCart className="shrink-0" size={35} color={'white'} />
           </div>
           <span className="font-bold text-lg md:text-4xl">
-            {UI_TEXT.APP_INFO.ADMIN} <span className="text-red-800">{UI_TEXT.APP_INFO.COMMERCE}</span>
+            {UI_TEXT.APP_INFO.ADMIN}{' '}
+            <span className="text-red-800">{UI_TEXT.APP_INFO.COMMERCE}</span>
           </span>
         </div>
-        <div className="w-1/2 text-center text-sm mx-auto">
-          {UI_TEXT.APP_INFO.DESCRIPTION}
-        </div>
+        <div className="w-1/2 text-center text-sm mx-auto">{UI_TEXT.APP_INFO.DESCRIPTION}</div>
         <div className="w-[75%] flex flex-col gap-3 mx-auto mt-4 mb-2">
           {AppInfoCardData.map((AppInfo, idx) => (
             <AppInfoCard

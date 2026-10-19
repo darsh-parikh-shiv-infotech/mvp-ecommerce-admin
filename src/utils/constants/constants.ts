@@ -30,8 +30,12 @@ export const OTP_VALIDATION_PATTERN = new RegExp(`^\\d{${APP_CONFIG.OTP_LENGTH}}
 export const getViewCategoryEndpoint = (id: number) => `/attribute/view-attribute/${id}`;
 export const getUpdateCategoryEndpoint = (id: number) => `/attribute/update-attribute/${id}`;
 export const getDeleteCategoryEndpoint = (id: number) => `/attribute/delete-attribute/${id}`;
+export const getDeleteVariantEndpoint = (id: number) => `/variant/delete-variant/${id}`;
 export const getViewProductEndpoint = (id: number) => `/product/view-product/${id}`;
-export const getUpdateProductStatusEndpoint = (id: number) => `/product/update-product-status/${id}`;
+export const getUpdateProductStatusEndpoint = (id: number) =>
+  `/product/update-product-status/${id}`;
+export const getUpdateProductEndpoint = (id: number) =>
+  `/product/update-product/${id}`;
 
 export const API_ENDPOINTS = {
   LOGIN: '/auth-user/login',
@@ -49,6 +53,9 @@ export const API_ENDPOINTS = {
   UPDATE_PRODUCT_STATUS: getUpdateProductStatusEndpoint,
   UPLOAD_FILE: '/common/fileUpload',
   UPLOADED_FILE_BASE_PATH: '/public/uploads/',
+  ADD_PRODUCT: '/product/add-product',
+  UPDATE_PRODUCT: getUpdateProductEndpoint,
+  DELETE_VARIANT: getDeleteVariantEndpoint,
 } as const;
 
 export const getCategoryEditRoute = (id: string | number) => `/category/edit/${id}`;
@@ -67,6 +74,7 @@ export const ROUTES = {
   PRODUCT_ADD: '/product/add',
   PRODUCT_VIEW_PATTERN: '/product/view/:id',
   PRODUCT_VIEW: getProductViewRoute,
+  PRODUCT_EDIT_PATTERN: '/product/edit/:id',
   PRODUCT_EDIT: getProductEditRoute,
 } as const;
 
@@ -189,6 +197,8 @@ export const UI_TEXT = {
     SHOWING: 'Showing',
     OF: 'of',
     ACTION: 'Action',
+    DELETE: 'Delete',
+    EDIT: 'Edit',
     CREATED_ON: 'Created On',
     PAGE_NOT_FOUND: 'Page Not Found',
     BACK_TO_HOME: 'Back To Home',
@@ -213,7 +223,8 @@ export const UI_TEXT = {
   APP_INFO: {
     ADMIN: 'Admin',
     COMMERCE: 'Commerce',
-    DESCRIPTION: 'The all-in-one dashboard to manage your e-commerce business with ease and confidence.',
+    DESCRIPTION:
+      'The all-in-one dashboard to manage your e-commerce business with ease and confidence.',
     ANALYTICS_TITLE: 'Real-time Analytics',
     ANALYTICS_DESCRIPTION: 'Track sales & revenue live',
     INVENTORY_TITLE: 'Inventory Control',
@@ -268,6 +279,7 @@ export const UI_TEXT = {
     VIEW_ALL: 'View All Products',
     ADD: 'Add New Product',
     ADD_TITLE: 'Add Product',
+    EDIT_TITLE: 'Edit Product',
     ID: 'Product Id',
     IMAGE: 'Product Image',
     TITLE: 'Product Title',
@@ -324,6 +336,7 @@ export const UI_TEXT = {
     PRICE_PLACEHOLDER: 'Enter Price',
     ADD: 'Add Variant',
     EDIT: 'Edit Variant',
+    FALLBACK_EDIT_ERROR: 'Nothing To Edit',
   },
   PRODUCT_FORM: {
     TITLE: 'Title',
@@ -335,5 +348,6 @@ export const UI_TEXT = {
     NEXT: 'Check And Next',
     BASE_INFO: 'Base Product Info',
     VARIANT_INFO: 'Variant Info',
+    ADD_PRODUCT: 'Add Product',
   },
 } as const;

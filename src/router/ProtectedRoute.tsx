@@ -8,9 +8,7 @@ const ProtectedRoute = () => {
   const location = useLocation();
 
   if (loading) {
-    return (
-      <FullLoader SpinnerTitle={UI_TEXT.COMMON.LOADING} />
-    );
+    return <FullLoader SpinnerTitle={UI_TEXT.COMMON.LOADING} />;
   }
 
   if (!isAuthenticated) {
@@ -18,5 +16,5 @@ const ProtectedRoute = () => {
   }
 
   return <Outlet />;
-}
-export default ProtectedRoute 
+};
+export default ProtectedRoute;

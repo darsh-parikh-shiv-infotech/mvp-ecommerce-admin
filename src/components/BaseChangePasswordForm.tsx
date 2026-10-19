@@ -179,7 +179,9 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
           <button
             type="button"
             onClick={() => setShowNewPassword((visible) => !visible)}
-            aria-label={showNewPassword ? UI_TEXT.COMMON.HIDE_PASSWORD : UI_TEXT.COMMON.SHOW_PASSWORD}
+            aria-label={
+              showNewPassword ? UI_TEXT.COMMON.HIDE_PASSWORD : UI_TEXT.COMMON.SHOW_PASSWORD
+            }
             className="absolute inset-y-0 right-0 flex items-center px-4 text-red-500 hover:text-red-700"
           >
             {showNewPassword ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
@@ -211,7 +213,9 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
           <button
             type="button"
             onClick={() => setShowConfirmPassword((visible) => !visible)}
-            aria-label={showConfirmPassword ? UI_TEXT.COMMON.HIDE_PASSWORD : UI_TEXT.COMMON.SHOW_PASSWORD}
+            aria-label={
+              showConfirmPassword ? UI_TEXT.COMMON.HIDE_PASSWORD : UI_TEXT.COMMON.SHOW_PASSWORD
+            }
             className="absolute inset-y-0 right-0 flex items-center px-4 text-red-500 hover:text-red-700"
           >
             {showConfirmPassword ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
@@ -237,7 +241,8 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
           </button>
         ) : (
           <p className="text-sm mb-2">
-            {UI_TEXT.AUTH.RESEND_OTP_PROMPT} {Math.floor(timeLeft / APP_CONFIG.SECONDS_PER_MINUTE)}{UI_TEXT.COMMON.TIMER_SEPARATOR}
+            {UI_TEXT.AUTH.RESEND_OTP_PROMPT} {Math.floor(timeLeft / APP_CONFIG.SECONDS_PER_MINUTE)}
+            {UI_TEXT.COMMON.TIMER_SEPARATOR}
             {timeLeft % APP_CONFIG.SECONDS_PER_MINUTE}
           </p>
         )}

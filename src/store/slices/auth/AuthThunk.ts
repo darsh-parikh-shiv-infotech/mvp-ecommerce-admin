@@ -7,11 +7,7 @@ import {
   forgotPasswordApi,
   loginApi,
 } from '../../../api/api';
-import {
-  API_ERROR_MESSAGES,
-  AUTH_ROLES,
-  STORAGE_KEYS,
-} from '../../../utils/constants/constants';
+import { API_ERROR_MESSAGES, AUTH_ROLES, STORAGE_KEYS } from '../../../utils/constants/constants';
 
 export interface LoginReqest {
   email: string;
@@ -29,7 +25,7 @@ export interface ForgotPasswordRequest {
   email: string;
 }
 export interface ForgotPasswordResponse {
-  message: string;  
+  message: string;
   statusCode: number;
 }
 export interface ChangePasswordRequest {
@@ -47,7 +43,6 @@ export interface CheckAuthStatusResponse {
   message: string;
 }
 
-
 export const loginUser = createAsyncThunk<
   LoginResponse,
   LoginReqest,
@@ -56,7 +51,6 @@ export const loginUser = createAsyncThunk<
   try {
     const response = await loginApi({ ...credentials, role: AUTH_ROLES.ADMIN });
 
-   
     if (response && response.data) {
       localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.data.token);
     } else {
@@ -97,18 +91,19 @@ export const changePassword = createAsyncThunk<
   }
 });
 
-export const checkAuthStatus = createAsyncThunk<CheckAuthStatusResponse, void, { rejectValue: ApiErrorPayload }>(
-  'auth/checkAuthStatus',
-  async (_, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      if (!token) throw new Error(API_ERROR_MESSAGES.NO_TOKEN);
+export const checkAuthStatus = createAsyncThunk<
+  CheckAuthStatusResponse,
+  void,
+  { rejectValue: ApiErrorPayload }
+>('auth/checkAuthStatus', async (_, { rejectWithValue }) => {
+  try {
+    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+    if (!token) throw new Error(API_ERROR_MESSAGES.NO_TOKEN);
 
-      const response = await checkAuthStatusApi()
+    const response = await checkAuthStatusApi();
 
-      return response;
-    } catch (error: unknown) {
-      return rejectWithValue(toApiErrorPayload(error, API_ERROR_MESSAGES.UNEXPECTED));
-    }
+    return response;
+  } catch (error: unknown) {
+    return rejectWithValue(toApiErrorPayload(error, API_ERROR_MESSAGES.UNEXPECTED));
   }
-);
+});

@@ -40,7 +40,7 @@ axiosClient.interceptors.response.use(
     if (applicationError) {
       return Promise.reject(applicationError);
     }
-    
+
     return response;
   },
 
@@ -91,7 +91,11 @@ axiosClient.interceptors.response.use(
           );
         }
 
-        throw new ApiError(backendMessage || API_ERROR_MESSAGES.REQUEST_FAILED, status, axiosError.code);
+        throw new ApiError(
+          backendMessage || API_ERROR_MESSAGES.REQUEST_FAILED,
+          status,
+          axiosError.code,
+        );
       }
 
       // The request was made but no response arrived.

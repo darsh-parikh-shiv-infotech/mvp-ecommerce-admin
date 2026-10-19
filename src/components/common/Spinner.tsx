@@ -1,9 +1,9 @@
 import { UI_TEXT } from '../../utils/constants/constants';
 
 interface SpinnerProp {
-    SpinnerTitle?: string
+  SpinnerTitle?: string;
 }
-const Spinner = ({SpinnerTitle=UI_TEXT.COMMON.LOADING}:SpinnerProp) => {
+const Spinner = ({ SpinnerTitle = UI_TEXT.COMMON.LOADING }: SpinnerProp) => {
   return (
     <div role="status" className="flex flex-col items-center gap-2">
       <svg

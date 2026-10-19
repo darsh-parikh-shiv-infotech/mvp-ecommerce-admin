@@ -8,14 +8,21 @@ import { clearAuthError } from '../../store/slices/auth/authSlice';
 import BaseForgotPasswordForm from '../../components/BaseForgotPasswordForm';
 import BaseChangePasswordForm from '../../components/BaseChangePasswordForm';
 import BaseAppInfoAuth from '../../components/BaseAppInfoAuth';
-import { AUTH_ERROR_MESSAGES, FORM_DEFAULTS, ROUTES, UI_TEXT } from '../../utils/constants/constants';
+import {
+  AUTH_ERROR_MESSAGES,
+  FORM_DEFAULTS,
+  ROUTES,
+  UI_TEXT,
+} from '../../utils/constants/constants';
 
 const ResetPasswordPage = () => {
   const { loading } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const [changePasswordEmail, setChangePasswordEmail] = useState<string>(FORM_DEFAULTS.EMPTY_STRING);
+  const [changePasswordEmail, setChangePasswordEmail] = useState<string>(
+    FORM_DEFAULTS.EMPTY_STRING,
+  );
   const [step, setStep] = useState<1 | 2>(1);
   const forgotPasswordHandler = async (email: string) => {
     const result = await dispatch(forgotPassword({ email }));
@@ -27,7 +34,9 @@ const ResetPasswordPage = () => {
     }
     if (forgotPassword.rejected.match(result)) {
       toast.error(
-        result.payload?.message ?? result.error.message ?? AUTH_ERROR_MESSAGES.FORGOT_PASSWORD_FAILED,
+        result.payload?.message ??
+          result.error.message ??
+          AUTH_ERROR_MESSAGES.FORGOT_PASSWORD_FAILED,
       );
       dispatch(clearAuthError());
     }
@@ -47,7 +56,9 @@ const ResetPasswordPage = () => {
     }
     if (changePassword.rejected.match(result)) {
       toast.error(
-        result.payload?.message ?? result.error.message ?? AUTH_ERROR_MESSAGES.CHANGE_PASSWORD_FAILED,
+        result.payload?.message ??
+          result.error.message ??
+          AUTH_ERROR_MESSAGES.CHANGE_PASSWORD_FAILED,
       );
       dispatch(clearAuthError());
     }

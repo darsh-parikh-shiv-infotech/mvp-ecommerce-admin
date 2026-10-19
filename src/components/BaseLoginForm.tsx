@@ -92,7 +92,10 @@ const BaseLoginForm = ({ loading: isLoading, onSubmit }: BaseLoginFormProp) => {
         ) : null}
       </div>
       <div className="flex justify-end">
-        <Link to={ROUTES.FORGOT_PASSWORD} className="font-medium text-sm text-red-600 hover:border-b">
+        <Link
+          to={ROUTES.FORGOT_PASSWORD}
+          className="font-medium text-sm text-red-600 hover:border-b"
+        >
           {UI_TEXT.AUTH.FORGOT_PASSWORD_LINK}
         </Link>
       </div>
