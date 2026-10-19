@@ -8,13 +8,14 @@ import { clearAuthError } from '../../store/slices/auth/authSlice';
 import BaseForgotPasswordForm from '../../components/BaseForgotPasswordForm';
 import BaseChangePasswordForm from '../../components/BaseChangePasswordForm';
 import BaseAppInfoAuth from '../../components/BaseAppInfoAuth';
+import { AUTH_ERROR_MESSAGES, FORM_DEFAULTS, ROUTES, UI_TEXT } from '../../utils/constants/constants';
 
 const ResetPasswordPage = () => {
   const { loading } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const [changePasswordEmail, setChangePasswordEmail] = useState<string>('');
+  const [changePasswordEmail, setChangePasswordEmail] = useState<string>(FORM_DEFAULTS.EMPTY_STRING);
   const [step, setStep] = useState<1 | 2>(1);
   const forgotPasswordHandler = async (email: string) => {
     const result = await dispatch(forgotPassword({ email }));
@@ -26,7 +27,7 @@ const ResetPasswordPage = () => {
     }
     if (forgotPassword.rejected.match(result)) {
       toast.error(
-        result.payload?.message ?? result.error.message ?? 'Forgot Password Failed! Try Again',
+        result.payload?.message ?? result.error.message ?? AUTH_ERROR_MESSAGES.FORGOT_PASSWORD_FAILED,
       );
       dispatch(clearAuthError());
     }
@@ -41,12 +42,12 @@ const ResetPasswordPage = () => {
     const result = await dispatch(changePassword({ email, otp, newPassword, confirmPassword }));
 
     if (changePassword.fulfilled.match(result)) {
-      setChangePasswordEmail('');
-      return navigate('/');
+      setChangePasswordEmail(FORM_DEFAULTS.EMPTY_STRING);
+      return navigate(ROUTES.HOME);
     }
     if (changePassword.rejected.match(result)) {
       toast.error(
-        result.payload?.message ?? result.error.message ?? 'Change Password Failed! Try Again',
+        result.payload?.message ?? result.error.message ?? AUTH_ERROR_MESSAGES.CHANGE_PASSWORD_FAILED,
       );
       dispatch(clearAuthError());
     }
@@ -63,7 +64,7 @@ const ResetPasswordPage = () => {
               <div className="flex items-center px-2 py-2 rounded-base bg-red-700 transform transition-all hover:scale-110 hover:-rotate-3 duration-300 ease-in-out ">
                 <LuShoppingCart className="shrink-0" size={25} color={'white'} />
               </div>
-              <span className="font-bold text-lg md:text-xl">AdminShop</span>
+              <span className="font-bold text-lg md:text-xl">{UI_TEXT.COMMON.ADMIN_SHOP}</span>
             </div>
             <div className="flex flex-row gap-2">
               <div className="w-full bg-neutral-quaternary rounded-full h-2">

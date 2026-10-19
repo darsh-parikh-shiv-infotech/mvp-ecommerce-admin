@@ -7,6 +7,7 @@ import { checkAuthStatus, loginUser } from '../../store/slices/auth/AuthThunk';
 import { clearAuthError } from '../../store/slices/auth/authSlice';
 import BaseLoginForm from '../../components/BaseLoginForm';
 import BaseAppInfoAuth from '../../components/BaseAppInfoAuth';
+import { AUTH_ERROR_MESSAGES, ROUTES, UI_TEXT } from '../../utils/constants/constants';
 
 const LoginPage = () => {
   const { loading, isAuthenticated } = useAppSelector((state) => state.auth);
@@ -18,14 +19,14 @@ const LoginPage = () => {
     if (loginUser.fulfilled.match(result)) {
       const authStatusResult = await await dispatch(checkAuthStatus())
       if (checkAuthStatus.fulfilled.match(authStatusResult)) {
-        return navigate('/');
+        return navigate(ROUTES.HOME);
       } else if (checkAuthStatus.rejected.match(authStatusResult)) {
-        toast.error(authStatusResult.payload?.message ?? authStatusResult.error.message ?? 'Login Failed! Try Again');
+        toast.error(authStatusResult.payload?.message ?? authStatusResult.error.message ?? AUTH_ERROR_MESSAGES.LOGIN_FAILED);
         dispatch(clearAuthError());
       }
     }
     if (loginUser.rejected.match(result)) {
-      toast.error(result.payload?.message ?? result.error.message ?? 'Login Failed! Try Again');
+      toast.error(result.payload?.message ?? result.error.message ?? AUTH_ERROR_MESSAGES.LOGIN_FAILED);
       dispatch(clearAuthError());
     }
 
@@ -33,7 +34,7 @@ const LoginPage = () => {
   };
 
   if (isAuthenticated) {
-    return <Navigate to={'/'} />;
+    return <Navigate to={ROUTES.HOME} />;
   }
   return (
     <div className="w-full h-dvh overflow-hidden bg-red-100">
@@ -45,12 +46,12 @@ const LoginPage = () => {
               <div className="flex items-center px-2 py-2 rounded-base bg-red-700 transform transition-all hover:scale-110 hover:-rotate-3 duration-300 ease-in-out ">
                 <LuShoppingCart className="shrink-0" size={25} color={'white'} />
               </div>
-              <span className="font-bold text-lg md:text-xl">AdminShop</span>
+              <span className="font-bold text-lg md:text-xl">{UI_TEXT.COMMON.ADMIN_SHOP}</span>
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-xl md:text-3xl">Sign In</span>
+              <span className="font-bold text-xl md:text-3xl">{UI_TEXT.AUTH.SIGN_IN}</span>
               <span className="text-sm md:text-md text-gray-500">
-                Access your admin dashboard to manage users.
+                {UI_TEXT.AUTH.AUTH_DASHBOARD_DESCRIPTION}
               </span>
             </div>
 

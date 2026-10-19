@@ -7,11 +7,16 @@ import {
   forgotPasswordApi,
   loginApi,
 } from '../../../api/api';
+import {
+  API_ERROR_MESSAGES,
+  AUTH_ROLES,
+  STORAGE_KEYS,
+} from '../../../utils/constants/constants';
 
 export interface LoginReqest {
   email: string;
   password: string;
-  role?: 'Admin';
+  role?: typeof AUTH_ROLES.ADMIN;
 }
 export interface LoginResponse {
   data: {
@@ -49,18 +54,18 @@ export const loginUser = createAsyncThunk<
   { rejectValue: ApiErrorPayload }
 >('auth/loginUser', async (credentials, { rejectWithValue }) => {
   try {
-    const response = await loginApi({ ...credentials, role: 'Admin' });
+    const response = await loginApi({ ...credentials, role: AUTH_ROLES.ADMIN });
 
    
     if (response && response.data) {
-      localStorage.setItem('token', response.data.token);
+      localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.data.token);
     } else {
-      throw new ApiError(response?.message || 'Unexpected login response.');
+      throw new ApiError(response?.message || API_ERROR_MESSAGES.UNEXPECTED_LOGIN_RESPONSE);
     }
 
     return response;
   } catch (error: unknown) {
-    return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'));
+    return rejectWithValue(toApiErrorPayload(error, API_ERROR_MESSAGES.UNEXPECTED));
   }
 });
 
@@ -74,7 +79,7 @@ export const forgotPassword = createAsyncThunk<
 
     return response;
   } catch (error: unknown) {
-    return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'));
+    return rejectWithValue(toApiErrorPayload(error, API_ERROR_MESSAGES.UNEXPECTED));
   }
 });
 
@@ -88,7 +93,7 @@ export const changePassword = createAsyncThunk<
 
     return response;
   } catch (error: unknown) {
-    return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'));
+    return rejectWithValue(toApiErrorPayload(error, API_ERROR_MESSAGES.UNEXPECTED));
   }
 });
 
@@ -96,14 +101,14 @@ export const checkAuthStatus = createAsyncThunk<CheckAuthStatusResponse, void, {
   'auth/checkAuthStatus',
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('No token found');
+      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      if (!token) throw new Error(API_ERROR_MESSAGES.NO_TOKEN);
 
       const response = await checkAuthStatusApi()
 
       return response;
     } catch (error: unknown) {
-      return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'));
+      return rejectWithValue(toApiErrorPayload(error, API_ERROR_MESSAGES.UNEXPECTED));
     }
   }
 );

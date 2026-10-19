@@ -1,8 +1,11 @@
 import * as Yup from 'yup';
+import { APP_CONFIG, VALIDATION_MESSAGES } from '../constants/constants';
 
 export const LoginValidationSchema = Yup.object().shape({
-  email: Yup.string().email('Please enter correct email.').required('Please enter your email.'),
+  email: Yup.string()
+    .email(VALIDATION_MESSAGES.EMAIL_INVALID)
+    .required(VALIDATION_MESSAGES.EMAIL_REQUIRED),
   password: Yup.string()
-    .min(7, 'Password must be minimum 7 character long.')
-    .required('Please enter your password.'),
+    .min(APP_CONFIG.PASSWORD_MIN_LENGTH, VALIDATION_MESSAGES.PASSWORD_MIN_LENGTH)
+    .required(VALIDATION_MESSAGES.PASSWORD_REQUIRED),
 });

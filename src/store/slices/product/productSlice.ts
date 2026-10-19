@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { changeStatusProduct, imageUpload, listAttribute, listProduct, viewProduct } from "./productThunk";
+import { APP_CONFIG, PRODUCT_STATUSES, PRODUCT_STATE_ERROR_MESSAGES } from "../../../utils/constants/constants";
 
 export interface attribute{
     id:number,
@@ -21,12 +22,12 @@ export interface product {
     title: string,
     description:string,
     variants:variant[]|null,
-    status: "active"|"inactive",
+    status: (typeof PRODUCT_STATUSES)[keyof typeof PRODUCT_STATUSES],
     createdAt: string,
     product_image: string,
     min_price: number,
     max_price: number,
-    attribute_set: attribute[]
+    attribute_set: attribute
 }
 interface productState {
     data: product[],
@@ -46,11 +47,11 @@ const initialState: productState = {
     attributeSetData:[],
     isLoading: true,
     error: null,
-    totalItems: 1,
-    totalPages: 1,
-    currentPage: 1,
-    pageSize: 10,
-    numberOfRows: 10
+    totalItems: APP_CONFIG.INITIAL_TOTAL_ITEMS,
+    totalPages: APP_CONFIG.INITIAL_TOTAL_PAGES,
+    currentPage: APP_CONFIG.FIRST_PAGE,
+    pageSize: APP_CONFIG.INITIAL_PAGE_SIZE,
+    numberOfRows: APP_CONFIG.INITIAL_PAGE_SIZE
 }
 const productSlice = createSlice({
     name: "product",
@@ -81,7 +82,7 @@ const productSlice = createSlice({
             .addCase(listProduct.rejected, (state, action) => {
                 state.data = []
                 state.isLoading = false;
-                state.error = action.payload?.message ?? action.error.message ?? 'Fetching Product Data Failed.';
+                state.error = action.payload?.message ?? action.error.message ?? PRODUCT_STATE_ERROR_MESSAGES.FETCH_FAILED;
                 state.currentPage = 0;
                 state.numberOfRows = 0;
                 state.pageSize = 0;
@@ -96,7 +97,7 @@ const productSlice = createSlice({
                 state.attributeSetData = action.payload?.data?.rows || []
             })
             .addCase(listAttribute.rejected, (state,action) => {
-                state.error = action.payload?.message ?? action.error.message ?? 'Fetching Attributes Data Failed.';
+                state.error = action.payload?.message ?? action.error.message ?? PRODUCT_STATE_ERROR_MESSAGES.FETCH_ATTRIBUTES_FAILED;
             })
 
 
@@ -113,7 +114,7 @@ const productSlice = createSlice({
             .addCase(viewProduct.rejected, (state,action) => {
                 state.isLoading = false
                 state.selectedProduct = null
-                state.error = action.payload?.message ?? action.error.message ?? 'Fetching Single Product Data Failed.';
+                state.error = action.payload?.message ?? action.error.message ?? PRODUCT_STATE_ERROR_MESSAGES.FETCH_SINGLE_FAILED;
             })
 
             .addCase(changeStatusProduct.pending, (state) => {
@@ -126,14 +127,14 @@ const productSlice = createSlice({
             })
             .addCase(changeStatusProduct.rejected, (state,action) => {
                 state.isLoading = false
-                state.error = action.payload?.message ?? action.error.message ?? 'Fetching Single Product Data Failed.';
+                state.error = action.payload?.message ?? action.error.message ?? PRODUCT_STATE_ERROR_MESSAGES.FETCH_SINGLE_FAILED;
             })
 
             .addCase(imageUpload.pending, (state) => {
                 state.error = null
             })
             .addCase(imageUpload.rejected, (state,action) => {
-                state.error = action.payload?.message ?? action.error.message ?? 'File Upload Failed.';
+                state.error = action.payload?.message ?? action.error.message ?? PRODUCT_STATE_ERROR_MESSAGES.UPLOAD_FAILED;
             })
     }
 })

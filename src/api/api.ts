@@ -2,10 +2,11 @@ import type { ChangePasswordRequest, ChangePasswordResponse, CheckAuthStatusResp
 import type { DeleteCategoryResponse, DeleteCategoryRequest, ListCategoryResponse, AddCategoryRequest, AddCategoryResponse, EditCategoryRequest, EditCategoryResponse, ViewSingleCategoryRequest, ViewSingleCategoryResponse, ListCategoryRequest } from '../store/slices/category/categoryThunk';
 import type { changeStatusProductRequest, changeStatusProductResponse, imageUploadRequest, imageUploadResponse, listAttributeResponse, listProductRequest, listProductResponse, viewProductRequest, viewProductResponse } from '../store/slices/product/productThunk';
 import axiosClient from './axios';
+import { API_ENDPOINTS, FORM_DATA_KEYS, HTTP_HEADERS } from '../utils/constants/constants';
 
 // Auth Api
 export const loginApi = async (credentials: LoginReqest): Promise<LoginResponse> => {
-  const response = await axiosClient.post<LoginResponse>('/auth-user/login', credentials);
+  const response = await axiosClient.post<LoginResponse>(API_ENDPOINTS.LOGIN, credentials);
 
   return response.data;
 };
@@ -13,7 +14,7 @@ export const forgotPasswordApi = async (
   reqBody: ForgotPasswordRequest,
 ): Promise<ForgotPasswordResponse> => {
   const response = await axiosClient.post<ForgotPasswordResponse>(
-    '/auth-user/verifyEmail',
+    API_ENDPOINTS.VERIFY_EMAIL,
     reqBody,
   );
 
@@ -23,7 +24,7 @@ export const changePasswordApi = async (
   reqBody: ChangePasswordRequest,
 ): Promise<ChangePasswordResponse> => {
   const response = await axiosClient.post<ChangePasswordResponse>(
-    '/auth-user/forgotPassword',
+    API_ENDPOINTS.FORGOT_PASSWORD,
     reqBody,
   );
 
@@ -31,7 +32,7 @@ export const changePasswordApi = async (
 };
 export const checkAuthStatusApi = async (): Promise<CheckAuthStatusResponse> => {
   const response = await axiosClient.get<CheckAuthStatusResponse>(
-    '/auth-user/viewProfile'
+    API_ENDPOINTS.VIEW_PROFILE
   );
 
   return response.data;
@@ -40,7 +41,7 @@ export const checkAuthStatusApi = async (): Promise<CheckAuthStatusResponse> => 
 // Category Api
 export const listCategoryApi = async (reqBody: ListCategoryRequest,): Promise<ListCategoryResponse> => {
   const response = await axiosClient.post<ListCategoryResponse>(
-    '/attribute/list-Of-attributes',
+    API_ENDPOINTS.LIST_CATEGORIES,
     reqBody
   );
 
@@ -48,14 +49,14 @@ export const listCategoryApi = async (reqBody: ListCategoryRequest,): Promise<Li
 }
 export const viewSingleCategoryApi = async (reqBody: ViewSingleCategoryRequest,): Promise<ViewSingleCategoryResponse> => {
   const response = await axiosClient.get<ViewSingleCategoryResponse>(
-    `/attribute/view-attribute/${reqBody.id}`,
+    API_ENDPOINTS.VIEW_CATEGORY(reqBody.id),
   );
 
   return response.data;
 }
 export const addCategoryApi = async (body: AddCategoryRequest): Promise<AddCategoryResponse> => {
   const response = await axiosClient.post<AddCategoryResponse>(
-    `/attribute/add-attribute`,
+    API_ENDPOINTS.ADD_CATEGORY,
     body
   );
 
@@ -65,7 +66,7 @@ export const editCategoryApi = async (body: EditCategoryRequest): Promise<EditCa
   const id = body.id
   const updateBody = { name: body.name }
   const response = await axiosClient.put<EditCategoryResponse>(
-    `/attribute/update-attribute/${id}`,
+    API_ENDPOINTS.UPDATE_CATEGORY(id),
     updateBody
   );
 
@@ -73,7 +74,7 @@ export const editCategoryApi = async (body: EditCategoryRequest): Promise<EditCa
 }
 export const deleteCategoryApi = async (param: DeleteCategoryRequest): Promise<DeleteCategoryResponse> => {
   const response = await axiosClient.delete<DeleteCategoryResponse>(
-    `/attribute/delete-attribute/${param.id}`
+    API_ENDPOINTS.DELETE_CATEGORY(param.id)
   );
 
   return response.data;
@@ -82,7 +83,7 @@ export const deleteCategoryApi = async (param: DeleteCategoryRequest): Promise<D
 // Product Api
 export const listProductApi = async (reqBody: listProductRequest): Promise<listProductResponse> => {
   const response = await axiosClient.post<listProductResponse>(
-    '/product/list-Of-products',
+    API_ENDPOINTS.LIST_PRODUCTS,
     reqBody
   );
 
@@ -90,21 +91,21 @@ export const listProductApi = async (reqBody: listProductRequest): Promise<listP
 }
 export const listAttributeApi = async (): Promise<listAttributeResponse> => {
   const response = await axiosClient.post<listAttributeResponse>(
-    '/attribute/list-of-attribute-set',{}
+    API_ENDPOINTS.LIST_ATTRIBUTES,{}
   );
 
   return response.data;
 }
 export const viewProductApi = async (reqBody: viewProductRequest): Promise<viewProductResponse> => {
   const response = await axiosClient.get<viewProductResponse>(
-    `/product/view-product/${reqBody.id}`
+    API_ENDPOINTS.VIEW_PRODUCT(reqBody.id)
   );
 
   return response.data;
 }
 export const changeStatusProductApi = async (reqBody: changeStatusProductRequest): Promise<changeStatusProductResponse> => {
   const response = await axiosClient.put<changeStatusProductResponse>(
-    `/product/update-product-status/${reqBody.id}`,
+    API_ENDPOINTS.UPDATE_PRODUCT_STATUS(reqBody.id),
     {status:reqBody.status}
   );
 
@@ -114,14 +115,14 @@ export const changeStatusProductApi = async (reqBody: changeStatusProductRequest
 
 export const imageUploadApi = async (file: imageUploadRequest): Promise<imageUploadResponse> => {
   const formData = new FormData();
-  formData.append('files', file);
+  formData.append(FORM_DATA_KEYS.FILES, file);
 
   const response = await axiosClient.post<imageUploadResponse>(
-    `/common/fileUpload`,
+    API_ENDPOINTS.UPLOAD_FILE,
     formData,
     {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        [HTTP_HEADERS.CONTENT_TYPE]: HTTP_HEADERS.MULTIPART_FORM_DATA,
       },
     }
   );

@@ -6,6 +6,7 @@ import { initFlowbite } from "flowbite";
 import { useAppDispatch, useAppSelector } from "../utils/hooks/hooks";
 import { imageUpload, listAttribute } from "../store/slices/product/productThunk";
 import { toast } from "react-toastify";
+import { APP_CONFIG, API_ENDPOINTS, FORM_DEFAULTS, UI_TEXT } from "../utils/constants/constants";
 
 export interface ProductFormValues {
     title: string,
@@ -22,18 +23,18 @@ interface BaseProductFormProp {
     updateFormValues?: ProductFormValues | null
 }
 const BaseProductForm = ({ btnText, onSubmit, updateFormValues }: BaseProductFormProp) => {
-    const [uploadedImageUrl, setUploadedImageUrl] = useState('');
+    const [uploadedImageUrl, setUploadedImageUrl] = useState<string>(FORM_DEFAULTS.EMPTY_STRING);
     const [isUploadingImage, setIsUploadingImage] = useState(false);
     const { attributeSetData } = useAppSelector((state) => state.product)
     const formik = useFormik<ProductFormValues>({
         initialValues: {
-            title: updateFormValues?.title || '',
-            description: updateFormValues?.description || '',
-            product_image: updateFormValues?.product_image || '',
-            meta_title: updateFormValues?.meta_title || '',
-            meta_key: updateFormValues?.meta_key || '',
-            meta_description: updateFormValues?.meta_description || '',
-            attribute_set:updateFormValues?.attribute_set || 1
+            title: updateFormValues?.title || FORM_DEFAULTS.EMPTY_STRING,
+            description: updateFormValues?.description || FORM_DEFAULTS.EMPTY_STRING,
+            product_image: updateFormValues?.product_image || FORM_DEFAULTS.EMPTY_STRING,
+            meta_title: updateFormValues?.meta_title || FORM_DEFAULTS.EMPTY_STRING,
+            meta_key: updateFormValues?.meta_key || FORM_DEFAULTS.EMPTY_STRING,
+            meta_description: updateFormValues?.meta_description || FORM_DEFAULTS.EMPTY_STRING,
+            attribute_set:updateFormValues?.attribute_set || APP_CONFIG.DEFAULT_ATTRIBUTE_SET_ID
         },
         validationSchema: ProductFormValidationSchema,
         validateOnBlur: true,
@@ -51,7 +52,7 @@ const BaseProductForm = ({ btnText, onSubmit, updateFormValues }: BaseProductFor
         async function fetchAttributes() {
             const result = await dispatch(listAttribute())
             if (listAttribute.rejected.match(result)) {
-                toast.error(result.error?.message || result.payload?.message || "Fetching Attributed Failed!")
+                toast.error(result.error?.message || result.payload?.message || UI_TEXT.PRODUCT.FETCH_ATTRIBUTES_FAILED)
             }
         }
         fetchAttributes()
@@ -76,11 +77,11 @@ const BaseProductForm = ({ btnText, onSubmit, updateFormValues }: BaseProductFor
         <div>
             <form method="post" encType="multipart/form-data" onSubmit={formik.handleSubmit} noValidate className="flex flex-col gap-4 mx-5">
                 <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <FormField labelText="Title" isMadantoryField={true} inputFieldId="title" inputFieldType="text" placeholder="Enter Product Title" fieldError={titleError} fieldProps={formik.getFieldProps("title")} />
+                    <FormField labelText={UI_TEXT.PRODUCT_FORM.TITLE} isMadantoryField={true} inputFieldId="title" inputFieldType="text" placeholder={UI_TEXT.PRODUCT_FORM.TITLE_PLACEHOLDER} fieldError={titleError} fieldProps={formik.getFieldProps("title")} />
                     <div className="w-full flex flex-col gap-2">
                         <label htmlFor="attribute-set" className="font-medium text-md md:text-sm">
-                            Attribute Set
-                            <span className="text-red-600">*</span>
+                            {UI_TEXT.PRODUCT.ATTRIBUTE_SET}
+                            <span className="text-red-600">{UI_TEXT.COMMON.REQUIRED_MARKER}</span>
                         </label>
 
                         <select 
@@ -106,20 +107,20 @@ const BaseProductForm = ({ btnText, onSubmit, updateFormValues }: BaseProductFor
                     </div>
                 </div>
                 <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-2">
-                    <FormField labelText="Meta Title" isMadantoryField={false} inputFieldId="meta_title" inputFieldType="text" placeholder="Enter Product Meta Title" fieldError={metaTitleError} fieldProps={formik.getFieldProps("meta_title")} />
-                    <FormField labelText="Meta Key" isMadantoryField={false} inputFieldId="meta_key" inputFieldType="text" placeholder="Enter Product Meta Key" fieldError={metaKeyError} fieldProps={formik.getFieldProps("meta_key")} />
-                    <FormField labelText="Meta Description" isMadantoryField={false} inputFieldId="meta_description" inputFieldType="text" placeholder="Enter Product Meta Description" fieldError={metaDescriptionError} fieldProps={formik.getFieldProps("meta_description")} />
+                    <FormField labelText={UI_TEXT.PRODUCT.META_TITLE} isMadantoryField={false} inputFieldId="meta_title" inputFieldType="text" placeholder={UI_TEXT.PRODUCT_FORM.META_TITLE_PLACEHOLDER} fieldError={metaTitleError} fieldProps={formik.getFieldProps("meta_title")} />
+                    <FormField labelText={UI_TEXT.PRODUCT.META_KEY} isMadantoryField={false} inputFieldId="meta_key" inputFieldType="text" placeholder={UI_TEXT.PRODUCT_FORM.META_KEY_PLACEHOLDER} fieldError={metaKeyError} fieldProps={formik.getFieldProps("meta_key")} />
+                    <FormField labelText={UI_TEXT.PRODUCT.META_DESCRIPTION} isMadantoryField={false} inputFieldId="meta_description" inputFieldType="text" placeholder={UI_TEXT.PRODUCT_FORM.META_DESCRIPTION_PLACEHOLDER} fieldError={metaDescriptionError} fieldProps={formik.getFieldProps("meta_description")} />
                 </div>
                 <div className="w-full grid grid-cols-1 md:grid-cols-2">
                     <div className="w-full flex flex-col gap-2">
                         <label htmlFor="description" className="font-medium text-md md:text-sm">
-                            Description
-                            <span className="text-red-600">*</span>
+                            {UI_TEXT.PRODUCT.DESCRIPTION}
+                            <span className="text-red-600">{UI_TEXT.COMMON.REQUIRED_MARKER}</span>
                         </label>
 
                         <textarea
                             id="description"
-                            placeholder="Enter Product Description"
+                            placeholder={UI_TEXT.PRODUCT_FORM.DESCRIPTION_PLACEHOLDER}
                             aria-invalid={Boolean(descriptionError)}
                             aria-describedby={descriptionError ? 'description-error' : undefined}
                             {...formik.getFieldProps('description')}
@@ -136,16 +137,16 @@ const BaseProductForm = ({ btnText, onSubmit, updateFormValues }: BaseProductFor
                 </div>
                 <div className="w-full my-2">
                     <label htmlFor="productImageInput" className="font-medium text-md md:text-sm">
-                        Upload Product Image
-                        <span className="text-red-600">*</span>
+                        {UI_TEXT.PRODUCT.UPLOAD_IMAGE}
+                        <span className="text-red-600">{UI_TEXT.COMMON.REQUIRED_MARKER}</span>
                     </label>
                     <div className="w-full grid grid-cols-2">
                         <div className="flex items-center justify-center">
                             <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-64 bg-neutral-secondary-medium border border-dashed border-default-strong rounded-base cursor-pointer hover:bg-neutral-tertiary-medium">
                                 <div className="flex flex-col items-center justify-center text-body pt-5 pb-6">
                                     <svg className="w-8 h-8 mb-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h3a3 3 0 0 0 0-6h-.025a5.56 5.56 0 0 0 .025-.5A5.5 5.5 0 0 0 7.207 9.021C7.137 9.017 7.071 9 7 9a4 4 0 1 0 0 8h2.167M12 19v-9m0 0-2 2m2-2 2 2" /></svg>
-                                    <p className="mb-2 text-sm"><span className="font-semibold">Click to upload</span></p>
-                                    <p className="text-xs">SVG, PNG, JPG</p>
+                                    <p className="mb-2 text-sm"><span className="font-semibold">{UI_TEXT.PRODUCT.CLICK_TO_UPLOAD}</span></p>
+                                    <p className="text-xs">{UI_TEXT.PRODUCT.ALLOWED_IMAGE_TYPES}</p>
                                 </div>
                                 <input id="dropzone-file" type="file" accept="image/*" className="hidden"
                                     disabled={isUploadingImage}
@@ -158,19 +159,19 @@ const BaseProductForm = ({ btnText, onSubmit, updateFormValues }: BaseProductFor
                                         try {
                                             const result = await dispatch(imageUpload(file));
                                             if (imageUpload.rejected.match(result)) {
-                                                toast.error(result.payload?.message || "File Upload Failed");
+                                                toast.error(result.payload?.message || UI_TEXT.PRODUCT.UPLOAD_FAILED);
                                                 return;
                                             }
 
                                             const uploadedImage = result.payload.data.image[0];
                                             if (!uploadedImage?.fileName || !uploadedImage.url) {
-                                                toast.error("Upload succeeded but the server did not return a usable image.");
+                                                toast.error(UI_TEXT.PRODUCT.UPLOAD_SUCCEEDED_NO_IMAGE);
                                                 return;
                                             }
 
                                             await formik.setFieldValue('product_image', uploadedImage.fileName);
                                             setUploadedImageUrl(uploadedImage.url);
-                                            toast.success(result.payload.message || "File Upload Success");
+                                            toast.success(result.payload.message || UI_TEXT.PRODUCT.UPLOAD_SUCCESS);
                                         } finally {
                                             setIsUploadingImage(false);
                                         }
@@ -181,13 +182,13 @@ const BaseProductForm = ({ btnText, onSubmit, updateFormValues }: BaseProductFor
                         <div className="flex min-h-64 items-center justify-center rounded-base border border-default p-4">
                             {(uploadedImageUrl || updateFormValues?.product_image) ? (
                                 <img
-                                    src={uploadedImageUrl || (import.meta.env.VITE_API_ADMIN_BASE_URL + "/public/uploads/" + updateFormValues?.product_image)}
-                                    alt="Uploaded product preview"
+                                    src={uploadedImageUrl || (import.meta.env.VITE_API_ADMIN_BASE_URL + API_ENDPOINTS.UPLOADED_FILE_BASE_PATH + updateFormValues?.product_image)}
+                                    alt={UI_TEXT.COMMON.UPLOADED_PRODUCT_PREVIEW_ALT}
                                     className="max-h-60 max-w-full object-contain"
                                 />
                             ) : (
                                 <p className="text-sm text-body">
-                                    {isUploadingImage ? "Uploading image..." : "Image preview will appear here"}
+                                    {isUploadingImage ? UI_TEXT.PRODUCT.UPLOADING_IMAGE : UI_TEXT.PRODUCT.IMAGE_PREVIEW}
                                 </p>
                             )}
                         </div>

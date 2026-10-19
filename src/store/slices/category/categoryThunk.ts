@@ -2,6 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { Category } from "./categorySlice";
 import { toApiErrorPayload, type ApiErrorPayload } from "../../../api/apiError";
 import { addCategoryApi, deleteCategoryApi, editCategoryApi, listCategoryApi, viewSingleCategoryApi } from "../../../api/api";
+import { API_ERROR_MESSAGES } from "../../../utils/constants/constants";
 
 export interface ListCategoryResponse {
     data: {
@@ -57,7 +58,7 @@ export const listCategory = createAsyncThunk<
 
         return response;
     } catch (error: unknown) {
-        return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'));
+        return rejectWithValue(toApiErrorPayload(error, API_ERROR_MESSAGES.UNEXPECTED));
     }
 })
 export const viewSingleCategory = createAsyncThunk<
@@ -70,7 +71,7 @@ export const viewSingleCategory = createAsyncThunk<
 
         return response;
     } catch (error: unknown) {
-        return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'));
+        return rejectWithValue(toApiErrorPayload(error, API_ERROR_MESSAGES.UNEXPECTED));
     }
 })
 export const addCategory = createAsyncThunk<
@@ -83,7 +84,7 @@ export const addCategory = createAsyncThunk<
 
         return response;
     } catch (error: unknown) {
-        return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'));
+        return rejectWithValue(toApiErrorPayload(error, API_ERROR_MESSAGES.UNEXPECTED));
     }
 })
 export const editCategory = createAsyncThunk<
@@ -96,7 +97,7 @@ export const editCategory = createAsyncThunk<
 
         return response;
     } catch (error: unknown) {
-        return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'));
+        return rejectWithValue(toApiErrorPayload(error, API_ERROR_MESSAGES.UNEXPECTED));
     }
 })
 export const deleteCategory = createAsyncThunk<
@@ -109,6 +110,6 @@ export const deleteCategory = createAsyncThunk<
 
         return response;
     } catch (error: unknown) {
-        return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'));
+        return rejectWithValue(toApiErrorPayload(error, API_ERROR_MESSAGES.UNEXPECTED));
     }
 })

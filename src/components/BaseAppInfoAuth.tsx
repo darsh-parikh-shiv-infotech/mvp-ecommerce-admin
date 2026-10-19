@@ -2,24 +2,25 @@ import { FaChartLine, FaUsers } from 'react-icons/fa';
 import { LuShoppingCart } from 'react-icons/lu';
 import AppInfoCard, { type AppInfoCardProp } from './common/AppInfoCard';
 import HeroBackgroundCircle from './common/HeroBackgroundCircle';
+import { UI_TEXT } from '../utils/constants/constants';
 
 const AppInfoCardData: AppInfoCardProp[] = [
   {
     Icon: <FaChartLine size={25} color={'white'} />,
-    Title: 'Real-time Analytics',
-    Description: 'Track sales & revenue live',
+    Title: UI_TEXT.APP_INFO.ANALYTICS_TITLE,
+    Description: UI_TEXT.APP_INFO.ANALYTICS_DESCRIPTION,
     BackgroundColorClass: 'bg-red-700',
   },
   {
     Icon: <LuShoppingCart size={25} color={'white'} />,
-    Title: 'Inventory Control',
-    Description: 'Smart stock management',
+    Title: UI_TEXT.APP_INFO.INVENTORY_TITLE,
+    Description: UI_TEXT.APP_INFO.INVENTORY_DESCRIPTION,
     BackgroundColorClass: 'bg-gray-500',
   },
   {
     Icon: <FaUsers size={25} color={'white'} />,
-    Title: 'Customer Insights',
-    Description: 'Understand your audience',
+    Title: UI_TEXT.APP_INFO.CUSTOMER_INSIGHTS_TITLE,
+    Description: UI_TEXT.APP_INFO.CUSTOMER_INSIGHTS_DESCRIPTION,
     BackgroundColorClass: 'bg-gray-500',
   },
 ];
@@ -38,11 +39,11 @@ const BaseAppInfoAuth = () => {
             <LuShoppingCart className="shrink-0" size={35} color={'white'} />
           </div>
           <span className="font-bold text-lg md:text-4xl">
-            Admin <span className="text-red-800">Commerce</span>
+            {UI_TEXT.APP_INFO.ADMIN} <span className="text-red-800">{UI_TEXT.APP_INFO.COMMERCE}</span>
           </span>
         </div>
         <div className="w-1/2 text-center text-sm mx-auto">
-          The all-in-one dashboard to manage your e-commerce business with ease and confidence.
+          {UI_TEXT.APP_INFO.DESCRIPTION}
         </div>
         <div className="w-[75%] flex flex-col gap-3 mx-auto mt-4 mb-2">
           {AppInfoCardData.map((AppInfo, idx) => (

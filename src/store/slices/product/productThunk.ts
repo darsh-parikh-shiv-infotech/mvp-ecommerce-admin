@@ -2,6 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { attribute, product } from "./productSlice";
 import { toApiErrorPayload, type ApiErrorPayload } from "../../../api/apiError";
 import { changeStatusProductApi, imageUploadApi, listAttributeApi, listProductApi, viewProductApi } from "../../../api/api";
+import { API_ERROR_MESSAGES, PRODUCT_STATUSES } from "../../../utils/constants/constants";
 
 export interface listProductRequest {
     sortValue?: "desc" | "asc" | null,
@@ -34,7 +35,7 @@ export interface viewProductResponse {
 }
 export interface changeStatusProductRequest {
     id: number,
-    status: "active" | "inactive"
+    status: (typeof PRODUCT_STATUSES)[keyof typeof PRODUCT_STATUSES]
 }
 export interface changeStatusProductResponse {
     message: string
@@ -57,7 +58,7 @@ export const listProduct = createAsyncThunk<
         const response = await listProductApi(body);
         return response;
     } catch (error: unknown) {
-        return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'))
+        return rejectWithValue(toApiErrorPayload(error, API_ERROR_MESSAGES.UNEXPECTED))
     }
 })
 export const listAttribute = createAsyncThunk<
@@ -69,7 +70,7 @@ export const listAttribute = createAsyncThunk<
         const response = await listAttributeApi();
         return response;
     } catch (error: unknown) {
-        return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'))
+        return rejectWithValue(toApiErrorPayload(error, API_ERROR_MESSAGES.UNEXPECTED))
     }
 })
 export const viewProduct = createAsyncThunk<
@@ -81,7 +82,7 @@ export const viewProduct = createAsyncThunk<
         const response = await viewProductApi(body);
         return response;
     } catch (error: unknown) {
-        return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'))
+        return rejectWithValue(toApiErrorPayload(error, API_ERROR_MESSAGES.UNEXPECTED))
     }
 })
 export const changeStatusProduct = createAsyncThunk<
@@ -93,7 +94,7 @@ export const changeStatusProduct = createAsyncThunk<
         const response = await changeStatusProductApi(body);
         return response;
     } catch (error: unknown) {
-        return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'))
+        return rejectWithValue(toApiErrorPayload(error, API_ERROR_MESSAGES.UNEXPECTED))
     }
 })
 export const imageUpload = createAsyncThunk<
@@ -105,6 +106,6 @@ export const imageUpload = createAsyncThunk<
         const response = await imageUploadApi(body);
         return response
     } catch (error: unknown) {
-        return rejectWithValue(toApiErrorPayload(error, 'An unexpected error occurred.'))
+        return rejectWithValue(toApiErrorPayload(error, API_ERROR_MESSAGES.UNEXPECTED))
     }
 })

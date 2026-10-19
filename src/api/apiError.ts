@@ -1,3 +1,6 @@
+import { API_ERROR_MESSAGES } from '../utils/constants/constants';
+import { StatusCodes } from 'http-status-codes';
+
 export interface ApiErrorPayload {
   message: string;
   status?: number;
@@ -42,13 +45,13 @@ export const getApiResponseMessage = getMessage;
 export const getApplicationApiError = (value: unknown): ApiError | undefined => {
   const failedResponse = getResponseObjects(value).find((responseObject) => {
     const statusCode = getStatusCode(responseObject.statusCode);
-    return statusCode !== undefined && (statusCode < 200 || statusCode >= 300);
+    return statusCode !== undefined && (statusCode < StatusCodes.OK || statusCode >= StatusCodes.MULTIPLE_CHOICES);
   });
 
   if (!failedResponse) return undefined;
 
   return new ApiError(
-    getMessage(failedResponse) ?? getMessage(value) ?? 'Request failed.',
+    getMessage(failedResponse) ?? getMessage(value) ?? API_ERROR_MESSAGES.REQUEST_FAILED,
     getStatusCode(failedResponse.statusCode),
   );
 };

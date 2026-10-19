@@ -1,19 +1,24 @@
 import * as Yup from 'yup';
+import { APP_CONFIG, VALIDATION_MESSAGES } from '../constants/constants';
+
 export const ChangePasswordValidation = Yup.object().shape({
   otp: Yup.array()
     .of(Yup.string().defined())
-    .length(6, 'Please enter the 6-digit OTP.')
+    .length(APP_CONFIG.OTP_LENGTH, VALIDATION_MESSAGES.OTP_REQUIRED)
     .test(
       'valid-otp',
-      'Please enter the 6-digit OTP.',
-      (otp) => Array.isArray(otp) && otp.length === 6 && otp.every((digit) => /^\d$/.test(digit)),
+      VALIDATION_MESSAGES.OTP_REQUIRED,
+      (otp) =>
+        Array.isArray(otp) &&
+        otp.length === APP_CONFIG.OTP_LENGTH &&
+        otp.every((digit) => /^\d$/.test(digit)),
     )
-    .required('Please enter the 6-digit OTP.'),
+    .required(VALIDATION_MESSAGES.OTP_REQUIRED),
   newPassword: Yup.string()
-    .min(7, 'Password must be minimum 7 character long.')
-    .required('Please enter new password.'),
+    .min(APP_CONFIG.PASSWORD_MIN_LENGTH, VALIDATION_MESSAGES.PASSWORD_MIN_LENGTH)
+    .required(VALIDATION_MESSAGES.NEW_PASSWORD_REQUIRED),
   confirmNewPassword: Yup.string()
-    .min(7, 'Password must be minimum 7 character long.')
-    .required('Please enter new password again.')
-    .oneOf([Yup.ref('newPassword')], 'Passwords must match'),
+    .min(APP_CONFIG.PASSWORD_MIN_LENGTH, VALIDATION_MESSAGES.PASSWORD_MIN_LENGTH)
+    .required(VALIDATION_MESSAGES.CONFIRM_PASSWORD_REQUIRED)
+    .oneOf([Yup.ref('newPassword')], VALIDATION_MESSAGES.PASSWORDS_MUST_MATCH),
 });

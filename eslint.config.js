@@ -20,5 +20,20 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      '@typescript-eslint/naming-convention': [
+        'error',
+        {
+          selector: 'function',
+          format: ['camelCase'],
+          filter: { regex: '^[A-Z]', match: false },
+        },
+        {
+          selector: 'variable',
+          format: ['camelCase'],
+          filter: { regex: '^[A-Z]', match: false },
+        },
+      ],
+    },
   },
 ])

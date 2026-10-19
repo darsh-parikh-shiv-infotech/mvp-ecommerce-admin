@@ -1,6 +1,7 @@
 import { useFormik } from "formik";
 import { AttributeFormSchema } from "../utils/validations/AttributeFormValidation";
 import FormField from "./common/FormField";
+import { FORM_DEFAULTS, UI_TEXT } from "../utils/constants/constants";
 
 export interface AttributeFormValues {
     id:number|undefined,
@@ -22,12 +23,12 @@ const BaseVariantForm = ({  onSubmit, updateFormValues }: BaseAttributeFormProp)
     const formik = useFormik<AttributeFormValues>({
         initialValues: {
             id:updateFormValues?.id || undefined,
-            title: updateFormValues?.title || '',
-            available_quantity: updateFormValues?.available_quantity || 0,
-            on_hand_quantity: updateFormValues?.on_hand_quantity || 0,
-            code: updateFormValues?.code || '',
-            fake_price: updateFormValues?.fake_price || 0,
-            price: updateFormValues?.price || 0,
+            title: updateFormValues?.title || FORM_DEFAULTS.EMPTY_STRING,
+            available_quantity: updateFormValues?.available_quantity || FORM_DEFAULTS.ZERO,
+            on_hand_quantity: updateFormValues?.on_hand_quantity || FORM_DEFAULTS.ZERO,
+            code: updateFormValues?.code || FORM_DEFAULTS.EMPTY_STRING,
+            fake_price: updateFormValues?.fake_price || FORM_DEFAULTS.ZERO,
+            price: updateFormValues?.price || FORM_DEFAULTS.ZERO,
             isEditing:updateFormValues?.isEditing || false
         },
         validationSchema: AttributeFormSchema,
@@ -55,66 +56,66 @@ const BaseVariantForm = ({  onSubmit, updateFormValues }: BaseAttributeFormProp)
             <input type="hidden" id="id" {...formik.getFieldProps("id")} />
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2">
                 <FormField
-                    labelText="Title"
+                    labelText={UI_TEXT.VARIANT.TITLE}
                     isMadantoryField={true}
                     inputFieldId="title"
                     inputFieldType="text"
-                    placeholder="Enter Variant Title"
+                    placeholder={UI_TEXT.VARIANT.TITLE_PLACEHOLDER}
                     fieldError={titleError}
                     fieldProps={formik.getFieldProps("title")}
                 />
                 <FormField
-                    labelText="Code/SKU"
+                    labelText={UI_TEXT.VARIANT.CODE_SKU}
                     isMadantoryField={true}
                     inputFieldId="code"
                     inputFieldType="text"
-                    placeholder="Enter Code"
+                    placeholder={UI_TEXT.VARIANT.CODE_PLACEHOLDER}
                     fieldError={codeError}
                     fieldProps={formik.getFieldProps("code")}
                 />
             </div>
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2">
                 <FormField
-                    labelText="Available Quantity"
+                    labelText={UI_TEXT.VARIANT.AVAILABLE_QUANTITY}
                     isMadantoryField={true}
                     inputFieldId="available_quantity"
                     inputFieldType="number"
-                    placeholder="Enter Available Quantity"
+                    placeholder={UI_TEXT.VARIANT.AVAILABLE_QUANTITY_PLACEHOLDER}
                     fieldError={availableQuantityError}
                     fieldProps={formik.getFieldProps("available_quantity")}
                 />
                 <FormField
-                    labelText="On Hand Quantity"
+                    labelText={UI_TEXT.VARIANT.ON_HAND_QUANTITY}
                     isMadantoryField={true}
                     inputFieldId="on_hand_quantity"
                     inputFieldType="number"
-                    placeholder="Enter On Hand Quantity"
+                    placeholder={UI_TEXT.VARIANT.ON_HAND_QUANTITY_PLACEHOLDER}
                     fieldError={onHandQuantityError}
                     fieldProps={formik.getFieldProps("on_hand_quantity")}
                 />
             </div>
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2">
                 <FormField
-                    labelText="Fake Price"
+                    labelText={UI_TEXT.VARIANT.FAKE_PRICE}
                     isMadantoryField={true}
                     inputFieldId="fake_price"
                     inputFieldType="number"
-                    placeholder="Enter Fake Price"
+                    placeholder={UI_TEXT.VARIANT.FAKE_PRICE_PLACEHOLDER}
                     fieldError={fakePriceError}
                     fieldProps={formik.getFieldProps("fake_price")}
                 />
                 <FormField
-                    labelText="Price"
+                    labelText={UI_TEXT.VARIANT.PRICE}
                     isMadantoryField={true}
                     inputFieldId="price"
                     inputFieldType="number"
-                    placeholder="Enter Price"
+                    placeholder={UI_TEXT.VARIANT.PRICE_PLACEHOLDER}
                     fieldError={priceError}
                     fieldProps={formik.getFieldProps("price")}
                 />
             </div>
             <div className="w-full my-2">
-                <button className="w-full p-4 bg-red-200 hover:bg-red-100">{updateFormValues?.isEditing ? "Edit Variant" : "Add Variant"}</button>
+                <button className="w-full p-4 bg-red-200 hover:bg-red-100">{updateFormValues?.isEditing ? UI_TEXT.VARIANT.EDIT : UI_TEXT.VARIANT.ADD}</button>
             </div>
         </form>
     )

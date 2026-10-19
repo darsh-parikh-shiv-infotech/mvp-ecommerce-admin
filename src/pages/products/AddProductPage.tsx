@@ -4,6 +4,7 @@ import BaseProductForm, { type ProductFormValues } from "../../components/BasePr
 import BaseVariantForm from "../../components/BaseVariantForm"
 import type { variant } from "../../store/slices/product/productSlice"
 import BaseVariantTable from "../../components/BaseVariantTable"
+import { ROUTES, UI_TEXT } from "../../utils/constants/constants";
 
 const AddProductPage = () => {
 
@@ -38,17 +39,17 @@ const AddProductPage = () => {
     return (
         <div className="w-full flex flex-col gap-4 my-4">
             <div className="flex gap-2 justify-between">
-                <span className="text-3xl font-bold">Add Product</span>
-                <Link to={"/product"} className="p-2 rounded-md font-semibold hover:underline text-sm">
-                    <span className="text-lg">&larr; {" "}</span> Back To Listing
+                <span className="text-3xl font-bold">{UI_TEXT.PRODUCT.ADD_TITLE}</span>
+                <Link to={ROUTES.PRODUCT} className="p-2 rounded-md font-semibold hover:underline text-sm">
+                    <span className="text-lg">{UI_TEXT.COMMON.BACK_ARROW}{" "}</span> {UI_TEXT.PRODUCT.BACK_TO_LISTING}
                 </Link>
             </div>
             <div className="w-full flex flex-row gap-2 border-b border-red-300 ">
-                <button type="button" onClick={() => setStep(1)} className={`p-4 hover:cursor-pointer ${step == 1 && 'bg-red-100'}`}>Base Product Info</button>
-                <button type="button" onClick={() => setStep(2)} className={`p-4 hover:cursor-pointer ${step == 2 && 'bg-red-100'} disabled:opacity-20 disabled:bg-none`} disabled={!secondStepEnable}>Variant Info</button>
+                <button type="button" onClick={() => setStep(1)} className={`p-4 hover:cursor-pointer ${step == 1 && 'bg-red-100'}`}>{UI_TEXT.PRODUCT_FORM.BASE_INFO}</button>
+                <button type="button" onClick={() => setStep(2)} className={`p-4 hover:cursor-pointer ${step == 2 && 'bg-red-100'} disabled:opacity-20 disabled:bg-none`} disabled={!secondStepEnable}>{UI_TEXT.PRODUCT_FORM.VARIANT_INFO}</button>
             </div>
             {
-                step === 1 && <BaseProductForm btnText="Check And Next" onSubmit={handleProductBtn} updateFormValues={newProductInfo} />
+                step === 1 && <BaseProductForm btnText={UI_TEXT.PRODUCT_FORM.NEXT} onSubmit={handleProductBtn} updateFormValues={newProductInfo} />
             }
             {
                 step === 2 && 

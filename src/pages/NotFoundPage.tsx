@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Sidebar from "../layouts/common/Sidebar";
 import Navbar from "../layouts/common/Navbar";
+import { ROUTES, UI_TEXT } from "../utils/constants/constants";
 
 const NotFoundPage = () => {
   return (
@@ -9,8 +10,8 @@ const NotFoundPage = () => {
       <Navbar/>
       <div className="w-full h-dvh overflow-hidden bg-red-100">
         <div className="h-full flex flex-col items-center gap-5 justify-center">
-          <span className="text-4xl font-bold">Page Not Found</span>
-          <Link to={"/"} className="bg-blue-200 p-2 rounded-md font-semibold text-sm">Back To Home</Link>
+          <span className="text-4xl font-bold">{UI_TEXT.COMMON.PAGE_NOT_FOUND}</span>
+          <Link to={ROUTES.HOME} className="bg-blue-200 p-2 rounded-md font-semibold text-sm">{UI_TEXT.COMMON.BACK_TO_HOME}</Link>
         </div>
       </div>
     </>

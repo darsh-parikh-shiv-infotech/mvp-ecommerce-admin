@@ -1,4 +1,5 @@
 import type { FieldInputProps } from "formik"
+import { FORM_DEFAULTS, UI_TEXT } from "../../utils/constants/constants";
 
 interface FormFieldProp {
     labelText: string,
@@ -14,7 +15,7 @@ const FormField = ({
     isMadantoryField,
     inputFieldType,
     inputFieldId,
-    placeholder = "",
+    placeholder = FORM_DEFAULTS.EMPTY_STRING,
     fieldError,
     fieldProps
 }: FormFieldProp
@@ -23,7 +24,7 @@ const FormField = ({
         <div className="flex flex-col gap-2">
             <label htmlFor={inputFieldId} className="font-medium text-md md:text-sm">
                 {labelText}
-                <span className="text-red-600">{isMadantoryField && "*"}</span>
+                <span className="text-red-600">{isMadantoryField && UI_TEXT.COMMON.REQUIRED_MARKER}</span>
             </label>
 
             <input

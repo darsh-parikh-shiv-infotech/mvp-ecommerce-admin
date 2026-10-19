@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from './utils/hooks/hooks';
 import { checkAuthStatus } from './store/slices/auth/AuthThunk';
 import FullLoader from './components/common/FullLoader';
 import { router } from './router/Routes';
+import { APP_CONFIG, TOAST_CONFIG, UI_TEXT } from './utils/constants/constants';
 
 function App() {
   const { isInitializing } = useAppSelector((state) => state.auth);
@@ -15,20 +16,20 @@ function App() {
 
   // Keep the app quiet until the initial auth check finishes
   if (isInitializing) {
-    return <FullLoader SpinnerTitle='Loading...' />
+    return <FullLoader SpinnerTitle={UI_TEXT.COMMON.LOADING} />;
   }
   return (
     <>
       <RouterProvider router={router} />
       <ToastContainer
-        position="top-right"
-        autoClose={3000}
+        position={TOAST_CONFIG.POSITION}
+        autoClose={APP_CONFIG.TOAST_AUTO_CLOSE_MS}
         hideProgressBar={false}
         newestOnTop={true}
         closeOnClick
         pauseOnHover
-        theme="light"
-        limit={3}
+        theme={TOAST_CONFIG.THEME}
+        limit={APP_CONFIG.TOAST_LIMIT}
       />
     </>
   );
