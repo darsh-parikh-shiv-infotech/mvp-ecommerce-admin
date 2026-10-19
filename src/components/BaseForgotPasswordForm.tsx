@@ -2,6 +2,7 @@ import { useFormik } from 'formik';
 import { ResetPasswordValidation } from '../utils/validations/ResetPasswordValidation';
 import { Link } from 'react-router-dom';
 import { MdOutlineEmail } from 'react-icons/md';
+import { FORM_DEFAULTS, ROUTES, UI_TEXT } from '../utils/constants/constants';
 
 interface BaseForgotPasswordFormProp {
   loading: boolean;
@@ -15,7 +16,7 @@ interface ResetPasswordFormValues {
 const BaseForgotPasswordForm = ({ loading, submitHandler }: BaseForgotPasswordFormProp) => {
   const formik = useFormik<ResetPasswordFormValues>({
     initialValues: {
-      email: '',
+      email: FORM_DEFAULTS.EMPTY_STRING,
     },
     validationSchema: ResetPasswordValidation,
     validateOnBlur: true,
@@ -34,26 +35,26 @@ const BaseForgotPasswordForm = ({ loading, submitHandler }: BaseForgotPasswordFo
           <MdOutlineEmail color="red" size={15} />
         </div>
         <span className="uppercase font-semibold text-xs leading-0 text-gray-400">
-          Step 1 of 2 - Email
+          {UI_TEXT.AUTH.EMAIL_STEP}
         </span>
       </div>
       <div className="flex flex-col gap-1">
-        <span className="text-md md:text-2xl font-bold">Forgot Password</span>
+        <span className="text-md md:text-2xl font-bold">{UI_TEXT.AUTH.FORGOT_PASSWORD}</span>
         <span className="text-[12px] md:text-sm font-body">
-          Enter your email to reset your password
+          {UI_TEXT.AUTH.RESET_PASSWORD_DESCRIPTION}
         </span>
       </div>
       <div className="flex flex-col gap-1">
         <label htmlFor="email" className="font-medium text-sm md:text-md md:text-sm">
-          Email
-          <span className="text-red-600">*</span>
+          {UI_TEXT.AUTH.EMAIL}
+          <span className="text-red-600">{UI_TEXT.COMMON.REQUIRED_MARKER}</span>
         </label>
 
         <input
           type="email"
           id="email"
           autoComplete="email"
-          placeholder="Enter email"
+          placeholder={UI_TEXT.AUTH.ENTER_EMAIL}
           aria-invalid={Boolean(emailError)}
           aria-describedby={emailError ? 'email-error' : undefined}
           {...formik.getFieldProps('email')}
@@ -71,11 +72,11 @@ const BaseForgotPasswordForm = ({ loading, submitHandler }: BaseForgotPasswordFo
         className={`font-bold text-white bg-linear-to-r from-red-700 to-red-800  p-2 rounded-lg hover:-translate-y-0.5 hover:shadow-md hover:bg-red-700 shadow-rose-400 ${loading && 'opacity-50'}`}
         disabled={loading}
       >
-        {loading ? 'Loading...' : 'Send OTP'}
+        {loading ? UI_TEXT.COMMON.LOADING : UI_TEXT.AUTH.SEND_OTP}
       </button>
       <div className="flex justify-center">
-        <Link to={'/login'} className="font-medium text-sm text-red-600 hover:border-b">
-          Back To Sign In?
+        <Link to={ROUTES.LOGIN} className="font-medium text-sm text-red-600 hover:border-b">
+          {UI_TEXT.COMMON.BACK_TO_SIGN_IN}
         </Link>
       </div>
     </form>

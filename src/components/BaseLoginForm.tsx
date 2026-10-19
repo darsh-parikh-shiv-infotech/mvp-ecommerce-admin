@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useFormik } from 'formik';
 import { LoginValidationSchema } from '../utils/validations/LoginValiation';
+import { FORM_DEFAULTS, ROUTES, UI_TEXT } from '../utils/constants/constants';
 
 export interface LoginFormValues {
   email: string;
@@ -18,8 +19,8 @@ const BaseLoginForm = ({ loading: isLoading, onSubmit }: BaseLoginFormProp) => {
 
   const formik = useFormik<LoginFormValues>({
     initialValues: {
-      email: '',
-      password: '',
+      email: FORM_DEFAULTS.EMPTY_STRING,
+      password: FORM_DEFAULTS.EMPTY_STRING,
     },
     validationSchema: LoginValidationSchema,
     validateOnBlur: true,
@@ -38,15 +39,15 @@ const BaseLoginForm = ({ loading: isLoading, onSubmit }: BaseLoginFormProp) => {
     <form onSubmit={formik.handleSubmit} noValidate className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <label htmlFor="email" className="font-medium text-md md:text-sm">
-          Email
-          <span className="text-red-600">*</span>
+          {UI_TEXT.AUTH.EMAIL}
+          <span className="text-red-600">{UI_TEXT.COMMON.REQUIRED_MARKER}</span>
         </label>
 
         <input
           type="email"
           id="email"
           autoComplete="email"
-          placeholder="Enter email"
+          placeholder={UI_TEXT.AUTH.ENTER_EMAIL}
           aria-invalid={Boolean(emailError)}
           aria-describedby={emailError ? 'email-error' : undefined}
           {...formik.getFieldProps('email')}
@@ -61,8 +62,8 @@ const BaseLoginForm = ({ loading: isLoading, onSubmit }: BaseLoginFormProp) => {
       </div>
       <div className="flex flex-col gap-1">
         <label htmlFor="password" className="font-medium text-sm">
-          Password
-          <span className="text-red-600">*</span>
+          {UI_TEXT.AUTH.PASSWORD}
+          <span className="text-red-600">{UI_TEXT.COMMON.REQUIRED_MARKER}</span>
         </label>
         <div className="relative rounded-md">
           <input
@@ -73,12 +74,12 @@ const BaseLoginForm = ({ loading: isLoading, onSubmit }: BaseLoginFormProp) => {
             aria-describedby={passwordError ? 'password-error' : undefined}
             {...formik.getFieldProps('password')}
             className={`w-full text-sm md:text-md h-10 px-4 bg-white rounded-lg border ${passwordError ? 'border-red-600' : 'border-gray-300'} py-2 focus:outline-none focus:ring-1 focus:ring-red-400 focus:shadow-md`}
-            placeholder="Enter your password"
+            placeholder={UI_TEXT.AUTH.ENTER_PASSWORD}
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            aria-label={showPassword ? UI_TEXT.COMMON.HIDE_PASSWORD : UI_TEXT.COMMON.SHOW_PASSWORD}
             className="absolute inset-y-0 right-0 px-4 flex items-center text-red-500 hover:text-red-700"
           >
             {showPassword ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
@@ -91,8 +92,11 @@ const BaseLoginForm = ({ loading: isLoading, onSubmit }: BaseLoginFormProp) => {
         ) : null}
       </div>
       <div className="flex justify-end">
-        <Link to={'/forgot-password'} className="font-medium text-sm text-red-600 hover:border-b">
-          Forgot Password?
+        <Link
+          to={ROUTES.FORGOT_PASSWORD}
+          className="font-medium text-sm text-red-600 hover:border-b"
+        >
+          {UI_TEXT.AUTH.FORGOT_PASSWORD_LINK}
         </Link>
       </div>
       <button

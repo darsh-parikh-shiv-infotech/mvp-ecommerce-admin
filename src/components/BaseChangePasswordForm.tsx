@@ -3,7 +3,14 @@ import { useFormik } from 'formik';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { MdOutlineEmail } from 'react-icons/md';
 import { Link } from 'react-router-dom';
-import { RESEND_OTP_TIME } from '../utils/constants/constants';
+import {
+  APP_CONFIG,
+  FORM_DEFAULTS,
+  OTP_VALIDATION_PATTERN,
+  RESEND_OTP_TIME,
+  ROUTES,
+  UI_TEXT,
+} from '../utils/constants/constants';
 import { ChangePasswordValidation } from '../utils/validations/ChangePasswordValidation';
 
 interface BaseChangePasswordFormProps {
@@ -37,7 +44,7 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
         return;
       }
       setTimeLeft((prev) => prev - 1);
-    }, 1000);
+    }, APP_CONFIG.OTP_TICK_INTERVAL_MS);
 
     return () => clearInterval(timer);
   }, [timeLeft]);
@@ -49,9 +56,9 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
 
   const formik = useFormik<ChangePasswordFormValues>({
     initialValues: {
-      otp: Array(6).fill(''),
-      newPassword: '',
-      confirmNewPassword: '',
+      otp: Array(APP_CONFIG.OTP_LENGTH).fill(FORM_DEFAULTS.EMPTY_STRING),
+      newPassword: FORM_DEFAULTS.EMPTY_STRING,
+      confirmNewPassword: FORM_DEFAULTS.EMPTY_STRING,
     },
     validationSchema: ChangePasswordValidation,
     validateOnBlur: true,
@@ -90,10 +97,10 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
   const handleOtpPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
     event.preventDefault();
     const pastedOtp = event.clipboardData.getData('text').trim();
-    if (!/^\d{6}$/.test(pastedOtp)) return;
+    if (!OTP_VALIDATION_PATTERN.test(pastedOtp)) return;
 
     void formik.setFieldValue('otp', pastedOtp.split(''));
-    inputRefs.current[5]?.focus();
+    inputRefs.current[APP_CONFIG.OTP_LENGTH - 1]?.focus();
   };
 
   return (
@@ -103,19 +110,19 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
           <MdOutlineEmail color="red" size={15} />
         </div>
         <span className="uppercase font-semibold text-2xs md:text-xs leading-0 text-gray-400">
-          Step 2 of 2 - Verify & Reset
+          {UI_TEXT.AUTH.OTP_STEP}
         </span>
       </div>
       <div className="flex flex-col gap-1">
-        <span className="text-md md:text-2xl font-bold">Forgot Password</span>
+        <span className="text-md md:text-2xl font-bold">{UI_TEXT.AUTH.FORGOT_PASSWORD}</span>
         <span className="text-xs md:text-sm font-body">
-          Enter the OTP sent on {email} and set your new password.
+          {UI_TEXT.AUTH.OTP_INSTRUCTION_PREFIX} {email} {UI_TEXT.AUTH.OTP_INSTRUCTION_SUFFIX}
         </span>
       </div>
       <div className="flex flex-col gap-1">
         <label htmlFor="otp-0" className="font-medium text-md md:text-sm">
-          OTP
-          <span className="text-red-600">*</span>
+          {UI_TEXT.AUTH.OTP}
+          <span className="text-red-600">{UI_TEXT.COMMON.REQUIRED_MARKER}</span>
         </label>
         <div className="flex justify-center gap-1">
           {formik.values.otp.map((digit, index) => (
@@ -129,9 +136,9 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
               type="text"
               inputMode="numeric"
               pattern="[0-9]*"
-              maxLength={1}
+              maxLength={APP_CONFIG.OTP_DIGIT_LENGTH}
               value={digit}
-              aria-label={`OTP digit ${index + 1}`}
+              aria-label={`${UI_TEXT.COMMON.OTP_DIGIT_LABEL_PREFIX} ${index + 1}`}
               aria-invalid={Boolean(otpError)}
               aria-describedby={otpError ? 'otp-error' : undefined}
               onBlur={formik.handleBlur}
@@ -155,8 +162,8 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
 
       <div className="flex flex-col gap-1">
         <label htmlFor="newPassword" className="font-medium text-sm">
-          New Password
-          <span className="text-red-600">*</span>
+          {UI_TEXT.AUTH.NEW_PASSWORD}
+          <span className="text-red-600">{UI_TEXT.COMMON.REQUIRED_MARKER}</span>
         </label>
         <div className="relative rounded-md">
           <input
@@ -167,12 +174,14 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
             aria-describedby={newPasswordError ? 'new-password-error' : undefined}
             {...formik.getFieldProps('newPassword')}
             className={`h-10 w-full rounded-lg border bg-white px-4 py-2 text-sm md:text-md ${newPasswordError ? 'border-red-600' : 'border-gray-300'} focus:outline-none focus:ring-1 focus:ring-red-400 focus:shadow-md`}
-            placeholder="Enter your new password"
+            placeholder={UI_TEXT.AUTH.ENTER_NEW_PASSWORD}
           />
           <button
             type="button"
             onClick={() => setShowNewPassword((visible) => !visible)}
-            aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+            aria-label={
+              showNewPassword ? UI_TEXT.COMMON.HIDE_PASSWORD : UI_TEXT.COMMON.SHOW_PASSWORD
+            }
             className="absolute inset-y-0 right-0 flex items-center px-4 text-red-500 hover:text-red-700"
           >
             {showNewPassword ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
@@ -187,8 +196,8 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
 
       <div className="flex flex-col gap-1">
         <label htmlFor="confirmNewPassword" className="font-medium text-sm">
-          Confirm New Password
-          <span className="text-red-600">*</span>
+          {UI_TEXT.AUTH.CONFIRM_NEW_PASSWORD}
+          <span className="text-red-600">{UI_TEXT.COMMON.REQUIRED_MARKER}</span>
         </label>
         <div className="relative rounded-md">
           <input
@@ -199,12 +208,14 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
             aria-describedby={confirmNewPasswordError ? 'confirm-new-password-error' : undefined}
             {...formik.getFieldProps('confirmNewPassword')}
             className={`h-10 w-full rounded-lg border bg-white px-4 py-2 text-sm md:text-md ${confirmNewPasswordError ? 'border-red-600' : 'border-gray-300'} focus:outline-none focus:ring-1 focus:ring-red-400 focus:shadow-md`}
-            placeholder="Enter your new password again"
+            placeholder={UI_TEXT.AUTH.ENTER_NEW_PASSWORD_AGAIN}
           />
           <button
             type="button"
             onClick={() => setShowConfirmPassword((visible) => !visible)}
-            aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+            aria-label={
+              showConfirmPassword ? UI_TEXT.COMMON.HIDE_PASSWORD : UI_TEXT.COMMON.SHOW_PASSWORD
+            }
             className="absolute inset-y-0 right-0 flex items-center px-4 text-red-500 hover:text-red-700"
           >
             {showConfirmPassword ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
@@ -226,11 +237,13 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
             className="font-medium text-sm text-red-600 hover:border-b"
             onClick={handleResendOtp}
           >
-            Resend OTP
+            {UI_TEXT.AUTH.RESEND_OTP}
           </button>
         ) : (
           <p className="text-sm mb-2">
-            Didn't you get the code? Resend in {Math.floor(timeLeft / 60)}:{timeLeft % 60}
+            {UI_TEXT.AUTH.RESEND_OTP_PROMPT} {Math.floor(timeLeft / APP_CONFIG.SECONDS_PER_MINUTE)}
+            {UI_TEXT.COMMON.TIMER_SEPARATOR}
+            {timeLeft % APP_CONFIG.SECONDS_PER_MINUTE}
           </p>
         )}
       </div>
@@ -240,11 +253,11 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
         className={`rounded-lg bg-linear-to-r from-red-700 to-red-800 p-2 font-bold text-white shadow-rose-400 hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-md ${loading && 'opacity-50'}`}
         disabled={loading}
       >
-        Update Password
+        {UI_TEXT.AUTH.UPDATE_PASSWORD}
       </button>
       <div className="flex justify-center">
-        <Link to={'/login'} className="font-medium text-sm text-red-600 hover:border-b">
-          Back To Sign In?
+        <Link to={ROUTES.LOGIN} className="font-medium text-sm text-red-600 hover:border-b">
+          {UI_TEXT.COMMON.BACK_TO_SIGN_IN}
         </Link>
       </div>
     </form>
