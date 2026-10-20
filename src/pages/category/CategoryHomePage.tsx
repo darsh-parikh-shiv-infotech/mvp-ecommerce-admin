@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector, useDebounce } from '../../utils/hooks/h
 import { deleteCategory, listCategory } from '../../store/slices/category/categoryThunk';
 import Spinner from '../../components/common/Spinner';
 import Pagination from '../../components/common/Pagination';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import moment from 'moment';
 import { APP_CONFIG, LIST_QUERY_DEFAULTS, ROUTES, UI_TEXT } from '../../utils/constants/constants';
@@ -14,44 +14,85 @@ const CategoryHomePage = () => {
   const { data, currentPage, numberOfRows, pageSize, totalItems, totalPages, isLoading, error } =
     useAppSelector((state) => state.category);
   const dispatch = useAppDispatch();
+  const [params, setParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const editCategory = (id: string) => {
+    navigate(ROUTES.CATEGORY_EDIT(id), {
+      state: {
+        from: location.pathname + location.search,
+      },
+    });
+  };
 
-  const [searchInput, setSearchInput] = useState('');
-  const [sortKey, setSortKey] = useState<string>(LIST_QUERY_DEFAULTS.SORT_KEY);
-  const [sortValue, setSortValue] = useState<'desc' | 'asc' | null>(
-    LIST_QUERY_DEFAULTS.SORT_ASCENDING,
-  );
+  const search = params.get('search') ?? LIST_QUERY_DEFAULTS.SEARCH;
+  const [searchInput, setSearchInput] = useState(search);
+  const debouncedSearchInput = useDebounce(searchInput, 500);
 
-  const debouncedSearchInput = useDebounce<string>(searchInput, 500);
-  const [page, setPage] = useState<number>(APP_CONFIG.FIRST_PAGE);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState<number | null>(null)
+  type SortOrder = 'desc' | 'asc';
+  const sortParam = params.get('order');
+  const sortValue: SortOrder =
+    sortParam === 'desc' || sortParam === 'asc' ? sortParam : LIST_QUERY_DEFAULTS.SORT_ASCENDING;
 
-  const fetchData = useCallback(
-    async (page: number, search: string, sortKey: string, sortValue: 'desc' | 'asc' | null) => {
-      const result = await dispatch(
-        listCategory({
-          limit: APP_CONFIG.PAGE_SIZE,
-          page,
-          search,
-          sortKey,
-          sortValue,
-        }),
-      );
-      if (listCategory.rejected.match(result)) {
-        toast.error(result.payload?.message || UI_TEXT.CATEGORY.FETCH_FAILED);
-      }
+  const parsedPage = Number(params.get('page'));
+  const filters = {
+    limit: APP_CONFIG.PAGE_SIZE,
+    page:
+      Number.isInteger(parsedPage) && parsedPage >= APP_CONFIG.FIRST_PAGE
+        ? parsedPage
+        : APP_CONFIG.FIRST_PAGE,
+    search,
+    sortKey: params.get('sort') || LIST_QUERY_DEFAULTS.SORT_KEY,
+    sortValue,
+  };
+  const updateFilters = useCallback(
+    (updates: Record<string, string>, resetPage = true) => {
+      setParams((currentParams) => {
+        const next = new URLSearchParams(currentParams);
+
+        Object.entries(updates).forEach(([key, value]) => {
+          if (value) {
+            next.set(key, value);
+          } else {
+            next.delete(key);
+          }
+        });
+
+        if (resetPage && updates.page === undefined) {
+          next.set('page', String(APP_CONFIG.FIRST_PAGE));
+        }
+        return next;
+      });
     },
-    [dispatch],
+    [setParams],
   );
-  useEffect(() => {
-    if (searchInput !== debouncedSearchInput) return;
-    fetchData(
-      page,
-      debouncedSearchInput.trim() || LIST_QUERY_DEFAULTS.SEARCH,
-      sortKey || LIST_QUERY_DEFAULTS.SORT_KEY,
-      sortValue || LIST_QUERY_DEFAULTS.SORT_ASCENDING,
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<number | null>(null);
+
+  const fetchData = useCallback(async () => {
+    const result = await dispatch(
+      listCategory({
+        limit: APP_CONFIG.PAGE_SIZE,
+        page: filters.page,
+        search: filters.search,
+        sortKey: filters.sortKey,
+        sortValue: filters.sortValue,
+      }),
     );
-  }, [debouncedSearchInput, fetchData, page, searchInput, sortKey, sortValue]);
+    if (listCategory.rejected.match(result)) {
+      toast.error(result.payload?.message || UI_TEXT.PRODUCT.FETCH_CATEGORIES_FAILED);
+    }
+  }, [dispatch, filters.page, filters.search, filters.sortKey, filters.sortValue]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleSearch = useCallback(
+    (nextSearch: string) => updateFilters({ search: nextSearch }),
+    [updateFilters],
+  );
 
   const deleteHandler = async (id: number) => {
     const result = await dispatch(deleteCategory({ id }));
@@ -60,26 +101,20 @@ const CategoryHomePage = () => {
     }
     if (deleteCategory.fulfilled.match(result)) {
       toast.success(result.payload.message || UI_TEXT.CATEGORY.DELETED);
-      fetchData(
-        page,
-        debouncedSearchInput.trim() || LIST_QUERY_DEFAULTS.SEARCH,
-        sortKey || LIST_QUERY_DEFAULTS.SORT_KEY,
-        sortValue || LIST_QUERY_DEFAULTS.SORT_ASCENDING,
-      );
+      fetchData();
     }
     return;
   };
   const handleSort = (field: string) => {
-    if (sortKey === field) {
-      setSortValue(sortValue === 'asc' ? 'desc' : 'asc');
+    if (filters.sortKey === field) {
+      updateFilters({ order: filters.sortValue === 'asc' ? 'desc' : 'asc' });
     } else {
-      setSortKey(field);
-      setSortValue('asc');
+      updateFilters({ sort: field, order: 'asc' });
     }
   };
   const renderSortIcon = (field: string) => {
-    const isActive = sortKey === field;
-    const isAsc = sortValue === 'asc';
+    const isActive = filters.sortKey === field;
+    const isAsc = filters.sortValue === 'asc';
 
     const activeColor = '#333333';
     const inactiveColor = '#61dafb';
@@ -100,11 +135,15 @@ const CategoryHomePage = () => {
     );
   };
 
+  useEffect(() => {
+    if (searchInput === debouncedSearchInput && debouncedSearchInput.trim() !== search) {
+      handleSearch(debouncedSearchInput.trim());
+    }
+  }, [debouncedSearchInput, handleSearch, search, searchInput]);
+
   return (
     <>
-      <span className="inline-block text-3xl font-bold my-2">
-        {UI_TEXT.CATEGORY.VIEW_ALL}
-      </span>
+      <span className="inline-block text-3xl font-bold my-2">{UI_TEXT.CATEGORY.VIEW_ALL}</span>
 
       <div className="relative overflow-x-auto mt-5 bg-red-50 shadow-xs rounded-base border border-default">
         <div className="flex justify-end gap-2 my-2 mx-2">
@@ -114,10 +153,7 @@ const CategoryHomePage = () => {
             placeholder="Search..."
             className="text-sm md:text-md h-10 px-4 py-2 rounded-md border border-black/30 focus:outline-none focus:ring-1 focus:ring-red-400 focus:shadow-md"
             value={searchInput}
-            onChange={(event) => {
-              setSearchInput(event.target.value);
-              setPage(APP_CONFIG.FIRST_PAGE);
-            }}
+            onChange={(event) => setSearchInput(event.target.value)}
           />
 
           <Link
@@ -197,17 +233,18 @@ const CategoryHomePage = () => {
                         .format(APP_CONFIG.DATE_FORMAT)}
                     </td>
                     <td className="flex flex-row gap-2 px-6 py-4">
-                      <Link
-                        to={ROUTES.CATEGORY_EDIT(row.id)}
-                        className="font-medium text-fg-brand hover:underline"
+                      <button
+                        type="button"
+                        onClick={() => editCategory(row.id.toString())}
+                        className="font-medium text-fg-brand hover:underline hover:cursor-pointer"
                       >
                         {UI_TEXT.PRODUCT.EDIT}
-                      </Link>
+                      </button>
                       <button
                         className="font-medium text-red-600 hover:underline hover:cursor-pointer"
                         onClick={() => {
-                          setIsDeleting(row.id)
-                          setShowDeleteModal(true)
+                          setIsDeleting(row.id);
+                          setShowDeleteModal(true);
                         }}
                       >
                         {UI_TEXT.CATEGORY.DELETE}
@@ -225,7 +262,7 @@ const CategoryHomePage = () => {
             pageSize={pageSize}
             numberOfRows={numberOfRows}
             totalItems={totalItems}
-            setPage={setPage}
+            onPageChange={(page) => updateFilters({ page: String(page) }, false)}
           />
         )}
       </div>
@@ -233,34 +270,34 @@ const CategoryHomePage = () => {
       <ReusableModal
         isOpen={showDeleteModal}
         onClose={() => {
-          setShowDeleteModal(false)
-          setIsDeleting(null)
-          return
+          setShowDeleteModal(false);
+          setIsDeleting(null);
+          return;
         }}
       >
-        <div className='w-full flex flex-col my-5 gap-4 items-center'>
-          <span className='text-2xl font-semibold'>
-            Are You Sure You Want To Delete?
-          </span>
+        <div className="w-full flex flex-col my-5 gap-4 items-center">
+          <span className="text-2xl font-semibold">Are You Sure You Want To Delete?</span>
 
-          <div className='w-full flex my-2 justify-center gap-2'>
+          <div className="w-full flex my-2 justify-center gap-2">
             <button
               onClick={() => {
-                if (isDeleting) deleteHandler(isDeleting)
-                  
-                setIsDeleting(null)
-                setShowDeleteModal(false)
+                if (isDeleting) deleteHandler(isDeleting);
+
+                setIsDeleting(null);
+                setShowDeleteModal(false);
               }}
-              className='w-fit bg-red-600 text-white px-3 py-2 rounded-lg hover:cursor-pointer hover:opacity-70'>
+              className="w-fit bg-red-600 text-white px-3 py-2 rounded-lg hover:cursor-pointer hover:opacity-70"
+            >
               Delete
             </button>
             <button
               onClick={() => {
-                setShowDeleteModal(false)
-                setIsDeleting(null)
-                return
+                setShowDeleteModal(false);
+                setIsDeleting(null);
+                return;
               }}
-              className='w-fit bg-blue-600 text-white px-3 py-2 rounded-lg hover:cursor-pointer hover:opacity-70'>
+              className="w-fit bg-blue-600 text-white px-3 py-2 rounded-lg hover:cursor-pointer hover:opacity-70"
+            >
               Cancel
             </button>
           </div>

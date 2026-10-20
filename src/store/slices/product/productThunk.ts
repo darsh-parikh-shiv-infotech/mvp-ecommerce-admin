@@ -71,7 +71,7 @@ export type productFormRequest = {
   status: (typeof PRODUCT_STATUSES)[keyof typeof PRODUCT_STATUSES];
 };
 export type updateProductFormRequest = {
-  id:number;
+  id: number;
   auth_vendor_id: number;
   attribute_set_id: number;
   title: string;
@@ -89,7 +89,8 @@ export interface productFormResponse {
   message: string;
 }
 export interface deleteVariantRequest {
-  id:number
+  product_id: number;
+  variant_id: number;
 }
 export interface deleteVariantResponse {
   message: string;
