@@ -2,25 +2,35 @@ import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
 import { StatusCodes } from 'http-status-codes';
 import { ApiError, getApplicationApiError, getApiResponseMessage } from './apiError';
+import {
+  API_ENDPOINTS,
+  API_ERROR_CODES,
+  API_ERROR_MESSAGES,
+  APP_CONFIG,
+  HTTP_HEADERS,
+  STORAGE_KEYS,
+} from '../utils/constants/constants';
+import { useAppDispatch } from '../utils/hooks/hooks';
+import { logout } from '../store/slices/auth/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_ADMIN_BASE_URL,
-  timeout: 10000,
+  timeout: APP_CONFIG.API_TIMEOUT_MS,
   headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
+    [HTTP_HEADERS.CONTENT_TYPE]: HTTP_HEADERS.JSON,
+    [HTTP_HEADERS.ACCEPT]: HTTP_HEADERS.JSON,
   },
 });
 
 // Request interceptor
 axiosClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
 
     if (token) {
-      config.headers.set('Authorization', `Bearer ${token}`);
+      config.headers.set(HTTP_HEADERS.AUTHORIZATION, `Bearer ${token}`);
     }
-
     return config;
   },
   (error: unknown) => Promise.reject(error),
@@ -39,6 +49,8 @@ axiosClient.interceptors.response.use(
 
   (error: unknown) => {
     if (axios.isAxiosError(error)) {
+      const dispatch = useAppDispatch();
+      const navigate = useNavigate();
       const axiosError = error as AxiosError<unknown>;
 
       const status = axiosError.response?.status;
@@ -49,12 +61,14 @@ axiosClient.interceptors.response.use(
         if (status === StatusCodes.UNAUTHORIZED) {
           // A 401 can indicate an expired or invalid session.
           // Avoid automatically logging out on the login endpoint.
-          if (!axiosError.config?.url?.includes('/login')) {
-            localStorage.removeItem('token');
+          if (!axiosError.config?.url?.includes(API_ENDPOINTS.LOGIN)) {
+            localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+            dispatch(logout());
+            navigate('/login');
           }
 
           throw new ApiError(
-            backendMessage || 'Session expired. Please log in again.',
+            backendMessage || API_ERROR_MESSAGES.SESSION_EXPIRED,
             status,
             axiosError.code,
           );
@@ -62,7 +76,7 @@ axiosClient.interceptors.response.use(
 
         if (status === StatusCodes.FORBIDDEN) {
           throw new ApiError(
-            backendMessage || 'You do not have permission to do this.',
+            backendMessage || API_ERROR_MESSAGES.FORBIDDEN,
             status,
             axiosError.code,
           );
@@ -70,7 +84,7 @@ axiosClient.interceptors.response.use(
 
         if (status === StatusCodes.NOT_FOUND) {
           throw new ApiError(
-            backendMessage || 'The requested resource was not found.',
+            backendMessage || API_ERROR_MESSAGES.NOT_FOUND,
             status,
             axiosError.code,
           );
@@ -78,23 +92,27 @@ axiosClient.interceptors.response.use(
 
         if (status >= StatusCodes.INTERNAL_SERVER_ERROR) {
           throw new ApiError(
-            backendMessage || 'Server error. Please try again later.',
+            backendMessage || API_ERROR_MESSAGES.SERVER_ERROR,
             status,
             axiosError.code,
           );
         }
 
-        throw new ApiError(backendMessage || 'Request failed.', status, axiosError.code);
+        throw new ApiError(
+          backendMessage || API_ERROR_MESSAGES.REQUEST_FAILED,
+          status,
+          axiosError.code,
+        );
       }
 
       // The request was made but no response arrived.
-      if (axiosError.code === 'ECONNABORTED') {
-        throw new ApiError('Request timed out. Try again.');
+      if (axiosError.code === API_ERROR_CODES.REQUEST_TIMEOUT) {
+        throw new ApiError(API_ERROR_MESSAGES.REQUEST_TIMED_OUT);
       }
 
       // DNS, offline, refused connection, etc.
       if (!axiosError.response) {
-        throw new ApiError('Unable to connect to the server. Check your connection.');
+        throw new ApiError(API_ERROR_MESSAGES.CONNECTION_FAILED);
       }
     }
 

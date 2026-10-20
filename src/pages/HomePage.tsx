@@ -1,5 +1,7 @@
+import { UI_TEXT } from '../utils/constants/constants';
+
 const HomePage = () => {
-  return <div>Hello HomePage</div>;
+  return <div>{UI_TEXT.COMMON.HOME_GREETING}</div>;
 };
 
 export default HomePage;

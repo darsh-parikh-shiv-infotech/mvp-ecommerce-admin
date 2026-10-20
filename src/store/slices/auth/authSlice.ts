@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { changePassword, checkAuthStatus, forgotPassword, loginUser } from './AuthThunk';
+import { AUTH_STATE_ERROR_MESSAGES, STORAGE_KEYS } from '../../../utils/constants/constants';
 
 export interface AuthUser {
   id: string;
@@ -21,7 +22,7 @@ const initialState: AuthState = {
   user: null,
   token: null,
   isAuthenticated: false,
-  isInitializing:true,
+  isInitializing: true,
   loading: false,
   error: null,
 };
@@ -37,10 +38,10 @@ const authSlice = createSlice({
       state.user = action.payload;
     },
     logout: (state) => {
-      localStorage.removeItem('token');
+      localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
       state.user = null;
       state.isAuthenticated = false;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -60,7 +61,8 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
 
-        state.error = action.payload?.message ?? action.error.message ?? 'Login failed.';
+        state.error =
+          action.payload?.message ?? action.error.message ?? AUTH_STATE_ERROR_MESSAGES.LOGIN_FAILED;
 
         state.isAuthenticated = false;
         state.user = null;
@@ -79,7 +81,10 @@ const authSlice = createSlice({
       .addCase(forgotPassword.rejected, (state, action) => {
         state.loading = false;
 
-        state.error = action.payload?.message ?? action.error.message ?? 'Forgot Password failed.';
+        state.error =
+          action.payload?.message ??
+          action.error.message ??
+          AUTH_STATE_ERROR_MESSAGES.FORGOT_PASSWORD_FAILED;
       })
 
       .addCase(changePassword.pending, (state) => {
@@ -94,7 +99,10 @@ const authSlice = createSlice({
       .addCase(changePassword.rejected, (state, action) => {
         state.loading = false;
 
-        state.error = action.payload?.message ?? action.error.message ?? 'Change Password failed.';
+        state.error =
+          action.payload?.message ??
+          action.error.message ??
+          AUTH_STATE_ERROR_MESSAGES.CHANGE_PASSWORD_FAILED;
       })
 
       .addCase(checkAuthStatus.fulfilled, (state, action) => {

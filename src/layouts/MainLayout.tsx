@@ -6,17 +6,16 @@ import { Outlet } from 'react-router-dom';
 
 const MainLayout = () => {
   useEffect(() => {
-    initFlowbite()
+    initFlowbite();
   }, []);
   return (
     <>
-      <Navbar/>
-      <Sidebar/>
-    
-      <div className="h-dvh p-4 sm:ml-64 mt-14 bg-red-100/50">
-        <Outlet/>
-      </div>
+      <Navbar />
+      <Sidebar />
 
+      <div className="min-h-dvh h-fit p-4 sm:ml-50 mt-14 bg-red-100/50">
+        <Outlet />
+      </div>
     </>
   );
 };
