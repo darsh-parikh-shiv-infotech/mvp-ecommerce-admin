@@ -1,10 +1,10 @@
-import type { variant } from '../store/slices/product/productSlice';
-import { UI_TEXT } from '../utils/constants/constants';
+import type { UiVariant } from '../store/slices/product/productSlice';
+import { API_ENDPOINTS, UI_TEXT } from '../utils/constants/constants';
 
 interface BaseVariantTableProp {
-  variantList: Partial<variant>[] | null;
+  variantList: Partial<UiVariant>[] | null;
   editHandler?: (id: number | undefined) => void;
-  deleteHandler?: (id: number | undefined) => void;
+  deleteHandler?: (variant_id: number | undefined) => void;
 }
 const BaseVariantTable = ({ variantList, editHandler, deleteHandler }: BaseVariantTableProp) => {
   if (!variantList || variantList.length == 0) return;
@@ -40,14 +40,20 @@ const BaseVariantTable = ({ variantList, editHandler, deleteHandler }: BaseVaria
         {variantList.map((variant, index) => {
           return (
             <tr
-              key={variant.id}
+              key={index}
               className={`${index % 2 == 0 ? 'bg-neutral-primary-soft' : 'bg-red-50'} border-b border-default hover:bg-neutral-secondary-medium`}
             >
               <td scope="row" className="px-6 py-4 font-medium text-heading whitespace-nowrap">
-                {variant.product_variant_image ? (
+                {variant.product_variant_image?.length ? (
                   <img
                     className="w-25 h-15 shrink-0"
-                    src={variant.product_variant_image[0]}
+                    src={
+                      variant.product_variant_image[0].startsWith('http')
+                        ? variant.product_variant_image[0]
+                        : import.meta.env.VITE_API_SERVER_BASE_URL +
+                          API_ENDPOINTS.UPLOADED_FILE_BASE_PATH +
+                          variant.product_variant_image[0]
+                    }
                     alt={UI_TEXT.COMMON.PREVIEW_IMAGE_ALT}
                   />
                 ) : (
@@ -57,7 +63,7 @@ const BaseVariantTable = ({ variantList, editHandler, deleteHandler }: BaseVaria
               <td className="px-6 py-4">{variant.title}</td>
               <td className="px-6 py-4">{variant.code}</td>
               <td className="px-6 py-4">{variant.available_quantity}</td>
-              <td className="px-6 py-4">{variant.price}</td>
+              <td className="px-6 py-4">{Number(variant.price) || 0}</td>
               <td className="px-6 py-4">
                 {variant.status &&
                   variant.status.toString().charAt(0).toUpperCase() +
@@ -68,14 +74,14 @@ const BaseVariantTable = ({ variantList, editHandler, deleteHandler }: BaseVaria
                   <div className="flex flex-row gap-2">
                     <button
                       type="button"
-                      onClick={() => editHandler(variant.id)}
+                      onClick={() => editHandler(variant.id || variant.ui_id)}
                       className="font-medium text-fg-brand hover:underline hover:cursor-pointer"
                     >
                       {UI_TEXT.COMMON.EDIT}
                     </button>
                     <button
                       type="button"
-                      onClick={() => deleteHandler(variant.id)}
+                      onClick={() => deleteHandler(variant.ui_id || variant.id)}
                       className="font-medium text-fg-danger hover:underline hover:cursor-pointer"
                     >
                       {UI_TEXT.COMMON.DELETE}

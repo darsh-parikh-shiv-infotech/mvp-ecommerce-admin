@@ -10,6 +10,9 @@ import {
   HTTP_HEADERS,
   STORAGE_KEYS,
 } from '../utils/constants/constants';
+import { useAppDispatch } from '../utils/hooks/hooks';
+import { logout } from '../store/slices/auth/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_ADMIN_BASE_URL,
@@ -46,6 +49,8 @@ axiosClient.interceptors.response.use(
 
   (error: unknown) => {
     if (axios.isAxiosError(error)) {
+      const dispatch = useAppDispatch();
+      const navigate = useNavigate();
       const axiosError = error as AxiosError<unknown>;
 
       const status = axiosError.response?.status;
@@ -58,6 +63,8 @@ axiosClient.interceptors.response.use(
           // Avoid automatically logging out on the login endpoint.
           if (!axiosError.config?.url?.includes(API_ENDPOINTS.LOGIN)) {
             localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+            dispatch(logout());
+            navigate('/login');
           }
 
           throw new ApiError(

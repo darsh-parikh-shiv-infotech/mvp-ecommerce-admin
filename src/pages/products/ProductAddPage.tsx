@@ -5,7 +5,7 @@ import BaseProductForm, {
   type ProductFormValues,
 } from '../../components/BaseProductForm';
 import BaseVariantForm from '../../components/BaseVariantForm';
-import type { variant } from '../../store/slices/product/productSlice';
+import type { UiVariant } from '../../store/slices/product/productSlice';
 import BaseVariantTable from '../../components/BaseVariantTable';
 import { PRODUCT_STATUSES, ROUTES, UI_TEXT } from '../../utils/constants/constants';
 import { toast } from 'react-toastify';
@@ -13,46 +13,43 @@ import { addProduct, type productFormRequest } from '../../store/slices/product/
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
 import FullLoader from '../../components/common/FullLoader';
 
-export interface ISelectedVariant extends variant {
-  isEditing: boolean;
-}
-
-const AddProductPage = () => {
+const ProductAddPage = () => {
   const [step, setStep] = useState<1 | 2>(1);
   const [secondStepEnable, setSecondStepEnable] = useState(false);
   const [newProductInfo, setNewProductInfo] = useState<newProductInfoProp>(null);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
-  const { isLoading } = useAppSelector((state) => state.product)
-  const [variantList, setVariantList] = useState<Partial<variant>[]>([]);
-  const [selectedVariant, setSelectedVariant] = useState<Partial<ISelectedVariant> | null>(null);
+  const { isLoading } = useAppSelector((state) => state.product);
+  const [variantList, setVariantList] = useState<Partial<UiVariant>[]>([]);
+  const [selectedVariant, setSelectedVariant] = useState<Partial<UiVariant> | null>(null);
 
   const handleProductBtn = (formValues: ProductFormValues) => {
     setNewProductInfo({ ...formValues });
     setSecondStepEnable(true);
     setStep(2);
   };
-  const handleVariantFormBtn = (formValues: Partial<ISelectedVariant | null>) => {
+  const handleVariantFormBtn = (formValues: Partial<UiVariant | null>) => {
     if (formValues && formValues.isEditing == false) {
-      const newVariant: Partial<variant> = {
-        id: new Date().getTime(),
+      const newVariant: Partial<UiVariant> = {
+        ui_id: new Date().getTime(),
         title: formValues.title,
         fake_price: formValues.fake_price,
         price: formValues.price,
         on_hand_quantity: formValues.on_hand_quantity,
         available_quantity: formValues.available_quantity,
         code: formValues.code,
+        product_variant_image: formValues.product_variant_image,
         status: PRODUCT_STATUSES.ACTIVE,
       };
       setVariantList([...variantList, newVariant]);
       setSelectedVariant(null);
     }
     if (formValues && formValues.isEditing == true) {
-      if (variantList.find((variant) => variant.id == formValues.id)) {
+      if (variantList.find((variant) => variant.ui_id == formValues.ui_id)) {
         setVariantList([
           ...variantList.map((variant) => {
-            if (variant.id == formValues.id) {
+            if (variant.ui_id == formValues.ui_id) {
               return { ...variant, ...formValues };
             }
             return variant;
@@ -93,16 +90,16 @@ const AddProductPage = () => {
       meta_title: newProductInfo.meta_title,
       meta_key: newProductInfo.meta_key,
       meta_description: newProductInfo.meta_description,
-      max_price: Math.max(...prices),
-      min_price: Math.min(...prices),
+      max_price: newProductInfo.max_price || 0,
+      min_price: newProductInfo.min_price || 0,
       status: PRODUCT_STATUSES.ACTIVE,
     };
     const result = await dispatch(addProduct(newProduct));
     if (addProduct.fulfilled.match(result)) {
-      setVariantList([])
-      setSelectedVariant(null)
-      setNewProductInfo(null)
-      navigate("product")
+      setVariantList([]);
+      setSelectedVariant(null);
+      setNewProductInfo(null);
+      navigate('/product');
       toast.success(result.payload.message);
       return;
     } else if (addProduct.rejected.match(result)) {
@@ -113,8 +110,8 @@ const AddProductPage = () => {
   };
   const handleEditVariant = (id: number | undefined) => {
     if (id) {
-      const findVariant: Partial<ISelectedVariant> | null =
-        variantList.find((variant) => variant.id == id) || null;
+      const findVariant: Partial<UiVariant> | null =
+        variantList.find((variant) => variant.id == id || variant.ui_id == id) || null;
       if (findVariant) {
         setSelectedVariant({ ...findVariant, isEditing: true });
         return;
@@ -126,11 +123,11 @@ const AddProductPage = () => {
   };
   const handleDeleteVariant = (id: number | undefined) => {
     if (id) {
-      const findVariant: Partial<ISelectedVariant> | null =
-        variantList.find((variant) => variant.id == id) || null;
+      const findVariant: Partial<UiVariant> | null =
+        variantList.find((variant) => variant.id == id || variant.ui_id == id) || null;
       if (findVariant) {
-        setVariantList([...variantList.filter((variant) => variant.id != id)]);
-        if (selectedVariant?.id == id) setSelectedVariant(null);
+        setVariantList([...variantList.filter((variant) => variant.ui_id != id)]);
+        if (selectedVariant?.ui_id == id) setSelectedVariant(null);
 
         return;
       }
@@ -140,7 +137,7 @@ const AddProductPage = () => {
     return;
   };
 
-  if(isLoading) return <FullLoader/>
+  if (isLoading) return <FullLoader />;
   return (
     <div className="w-full flex flex-col gap-4 my-4">
       <div className="flex gap-2 justify-between">
@@ -199,4 +196,4 @@ const AddProductPage = () => {
   );
 };
 
-export default AddProductPage;
+export default ProductAddPage;

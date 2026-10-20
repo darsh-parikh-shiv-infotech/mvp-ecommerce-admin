@@ -1,4 +1,3 @@
-import type { Dispatch, SetStateAction } from 'react';
 import { APP_CONFIG, UI_TEXT } from '../../utils/constants/constants';
 
 interface PaginationProp {
@@ -7,7 +6,7 @@ interface PaginationProp {
   pageSize: number;
   numberOfRows: number;
   totalItems: number;
-  setPage: Dispatch<SetStateAction<number>>;
+  onPageChange: (page: number) => void;
 }
 
 const Pagination = ({
@@ -16,7 +15,7 @@ const Pagination = ({
   pageSize,
   numberOfRows,
   totalItems,
-  setPage,
+  onPageChange,
 }: PaginationProp) => {
   const firstItem = totalItems === 0 || numberOfRows === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const lastItem = firstItem === 0 ? 0 : Math.min(firstItem + numberOfRows - 1, totalItems);
@@ -48,7 +47,7 @@ const Pagination = ({
         <li>
           <button
             type="button"
-            onClick={() => setPage((page) => Math.max(APP_CONFIG.FIRST_PAGE, page - 1))}
+            onClick={() => onPageChange(Math.max(APP_CONFIG.FIRST_PAGE, currentPage - 1))}
             disabled={currentPage <= APP_CONFIG.FIRST_PAGE}
             className="flex items-center justify-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading font-medium rounded-s-base text-sm px-3 h-9 disabled:cursor-not-allowed disabled:opacity-50"
           >
@@ -59,7 +58,7 @@ const Pagination = ({
           <li key={page}>
             <button
               type="button"
-              onClick={() => setPage(page)}
+              onClick={() => onPageChange(page)}
               aria-current={currentPage === page ? 'page' : undefined}
               className={`flex items-center justify-center box-border border border-default-medium font-medium text-sm px-3 h-9 ${currentPage === page ? 'bg-red-100 text-heading' : 'text-body bg-neutral-secondary-medium hover:bg-neutral-tertiary-medium hover:text-heading'}`}
             >
@@ -70,7 +69,7 @@ const Pagination = ({
         <li>
           <button
             type="button"
-            onClick={() => setPage((page) => Math.min(totalPages, page + 1))}
+            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage >= totalPages}
             className="flex items-center justify-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading font-medium rounded-e-base text-sm px-3 h-9 disabled:cursor-not-allowed disabled:opacity-50"
           >

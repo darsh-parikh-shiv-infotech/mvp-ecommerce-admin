@@ -10,7 +10,7 @@ import CategoryHomePage from '../pages/category/CategoryHomePage';
 import CategoryAddPage from '../pages/category/CategoryAddPage';
 import CategoryEditPage from '../pages/category/CategoryEditPage';
 import ViewProductPage from '../pages/products/ViewProductPage';
-import AddProductPage from '../pages/products/AddProductPage';
+import AddProductPage from '../pages/products/ProductAddPage';
 import { ROUTES } from '../utils/constants/constants';
 import ProductEditPage from '../pages/products/ProductEditPage';
 
@@ -31,7 +31,6 @@ export const router = createBrowserRouter(
           <Route path={ROUTES.PRODUCT_VIEW_PATTERN} element={<ViewProductPage />} />
           <Route path={ROUTES.PRODUCT_ADD} element={<AddProductPage />} />
           <Route path={ROUTES.PRODUCT_EDIT_PATTERN} element={<ProductEditPage />} />
-
         </Route>
       </Route>
 

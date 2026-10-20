@@ -166,15 +166,24 @@ export const addProductApi = async (body: productFormRequest): Promise<productFo
 
   return response.data;
 };
-export const updateProductApi = async (body: updateProductFormRequest): Promise<productFormResponse> => {
-  const {id,...editBody}=body
-  const response = await axiosClient.put<productFormResponse>(API_ENDPOINTS.UPDATE_PRODUCT(id),editBody);
+export const updateProductApi = async (
+  body: updateProductFormRequest,
+): Promise<productFormResponse> => {
+  const { id, ...editBody } = body;
+  const response = await axiosClient.put<productFormResponse>(
+    API_ENDPOINTS.UPDATE_PRODUCT(id),
+    editBody,
+  );
 
   return response.data;
 };
 
-export const deleteVariantApi = async (body: deleteVariantRequest): Promise<deleteVariantResponse> => {
-  const response = await axiosClient.delete<deleteVariantResponse>(API_ENDPOINTS.DELETE_VARIANT(body.id));
+export const deleteVariantApi = async (
+  body: deleteVariantRequest,
+): Promise<deleteVariantResponse> => {
+  const response = await axiosClient.delete<deleteVariantResponse>(
+    API_ENDPOINTS.DELETE_VARIANT(body.product_id, body.variant_id),
+  );
 
   return response.data;
 };

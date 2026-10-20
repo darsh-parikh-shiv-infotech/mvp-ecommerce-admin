@@ -1,18 +1,32 @@
 import { useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
 import { toast } from 'react-toastify';
 
 import { viewProduct } from '../../store/slices/product/productThunk';
-import { APP_CONFIG, ROUTES, UI_TEXT } from '../../utils/constants/constants';
+import { API_ENDPOINTS, APP_CONFIG, ROUTES, UI_TEXT } from '../../utils/constants/constants';
 import type { product } from '../../store/slices/product/productSlice';
 
 import Spinner from '../../components/common/Spinner';
 import moment from 'moment';
 import BaseVariantTable from '../../components/BaseVariantTable';
 
+type NavigationState = {
+  from?: string;
+};
+
 const ViewProductPage = () => {
   const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const state = location.state as NavigationState | null;
+  const handleBack = () => {
+    if (state?.from) {
+      navigate(state.from);
+    } else {
+      navigate(ROUTES.PRODUCT);
+    }
+  };
 
   const { selectedProduct, isLoading, error } = useAppSelector((state) => state.product);
   const dispatch = useAppDispatch();
@@ -34,10 +48,14 @@ const ViewProductPage = () => {
     <div className="mt-2 mx-5">
       <div className="flex gap-2 justify-between">
         <span className="text-3xl font-bold">{UI_TEXT.PRODUCT.VIEW_TITLE}</span>
-        <Link to={ROUTES.PRODUCT} className="p-2 rounded-md font-semibold hover:underline text-sm">
+        <button
+          type="button"
+          onClick={handleBack}
+          className="p-2 rounded-md font-semibold hover:underline hover:cursor-pointer text-sm"
+        >
           <span className="text-lg">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
           {UI_TEXT.PRODUCT.BACK_TO_LISTING}
-        </Link>
+        </button>
       </div>
       {isLoading && <Spinner />}
       {!isLoading && !error && selectedProduct && <ProductTable product={selectedProduct} />}
@@ -54,11 +72,15 @@ interface ProductTableProp {
 }
 const ProductTable = ({ product }: ProductTableProp) => {
   return (
-    <div className="w-full grid grid-cols-1 md:grid-cols-[30vw_50vw] mt-5">
-      <div className="w-full min-h-50 flex items-center justify-center">
+    <div className="w-full grid grid-cols-1 md:grid-cols-[30vw_50vw] gap-7 mt-5">
+      <div className="w-full h-full flex items-center justify-center">
         <img
-          className="shrink-0"
-          src={product.product_image}
+          className="w-full h-full shrink-0"
+          src={
+            import.meta.env.VITE_API_SERVER_BASE_URL +
+            API_ENDPOINTS.UPLOADED_FILE_BASE_PATH +
+            product.product_image
+          }
           alt={UI_TEXT.COMMON.PREVIEW_IMAGE_ALT}
         />
       </div>

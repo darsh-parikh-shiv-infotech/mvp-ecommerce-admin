@@ -1,7 +1,7 @@
 import { useFormik } from 'formik';
 import { ProductFormValidationSchema } from '../utils/validations/ProductFormValidation';
 import FormField from './common/FormField';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { initFlowbite } from 'flowbite';
 import { useAppDispatch, useAppSelector } from '../utils/hooks/hooks';
 import { imageUpload, listAttribute } from '../store/slices/product/productThunk';
@@ -23,9 +23,17 @@ export type newProductInfoProp = (Partial<product> & { attribute_set_id: number 
 interface BaseProductFormProp {
   btnText: string;
   onSubmit: (values: ProductFormValues) => void;
+  isEnabled?: boolean;
+  setIsEnabled?: Dispatch<SetStateAction<boolean>>;
   updateFormValues?: newProductInfoProp;
 }
-const BaseProductForm = ({ btnText, onSubmit, updateFormValues }: BaseProductFormProp) => {
+const BaseProductForm = ({
+  btnText,
+  onSubmit,
+  isEnabled,
+  setIsEnabled,
+  updateFormValues,
+}: BaseProductFormProp) => {
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>(FORM_DEFAULTS.EMPTY_STRING);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const { attributeSetData } = useAppSelector((state) => state.product);
@@ -39,6 +47,7 @@ const BaseProductForm = ({ btnText, onSubmit, updateFormValues }: BaseProductFor
       meta_description: updateFormValues?.meta_description || FORM_DEFAULTS.EMPTY_STRING,
       attribute_set_id: updateFormValues?.attribute_set_id || APP_CONFIG.DEFAULT_ATTRIBUTE_SET_ID,
     },
+    enableReinitialize: true,
     validationSchema: ProductFormValidationSchema,
     validateOnBlur: true,
     validateOnChange: true,
@@ -64,6 +73,9 @@ const BaseProductForm = ({ btnText, onSubmit, updateFormValues }: BaseProductFor
     }
     fetchAttributes();
   }, [dispatch]);
+  useEffect(() => {
+    if (setIsEnabled) setIsEnabled(!formik.dirty);
+  }, [formik.dirty]);
 
   const titleError =
     formik.touched.title || formik.submitCount > 0 ? formik.errors.title : undefined;
@@ -88,6 +100,15 @@ const BaseProductForm = ({ btnText, onSubmit, updateFormValues }: BaseProductFor
 
   return (
     <div>
+      {!isEnabled && (
+        <div
+          className="p-4 mb-4 text-sm text-fg-brand-strong rounded-base bg-brand-softer border"
+          role="alert"
+        >
+          <span className="font-medium">Alert!</span> Please Save Your Updates, Before Moving To
+          Next Form
+        </div>
+      )}
       <form
         method="post"
         encType="multipart/form-data"
@@ -271,7 +292,7 @@ const BaseProductForm = ({ btnText, onSubmit, updateFormValues }: BaseProductFor
                 <img
                   src={
                     uploadedImageUrl ||
-                    import.meta.env.VITE_API_ADMIN_BASE_URL +
+                    import.meta.env.VITE_API_SERVER_BASE_URL +
                       API_ENDPOINTS.UPLOADED_FILE_BASE_PATH +
                       updateFormValues?.product_image
                   }

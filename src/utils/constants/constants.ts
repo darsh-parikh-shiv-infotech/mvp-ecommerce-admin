@@ -11,7 +11,7 @@ export const APP_CONFIG = {
   SECONDS_PER_MINUTE: 60,
   DEFAULT_ATTRIBUTE_SET_ID: 1,
   PAGE_SIZE: 5,
-  PAGE_RANGE_AFTER_CURRENT: 3,
+  PAGE_RANGE_AFTER_CURRENT: 2,
   PAGE_RANGE_BEFORE_CURRENT: 1,
   FIRST_PAGE: 1,
   INITIAL_TOTAL_ITEMS: 1,
@@ -30,12 +30,12 @@ export const OTP_VALIDATION_PATTERN = new RegExp(`^\\d{${APP_CONFIG.OTP_LENGTH}}
 export const getViewCategoryEndpoint = (id: number) => `/attribute/view-attribute/${id}`;
 export const getUpdateCategoryEndpoint = (id: number) => `/attribute/update-attribute/${id}`;
 export const getDeleteCategoryEndpoint = (id: number) => `/attribute/delete-attribute/${id}`;
-export const getDeleteVariantEndpoint = (id: number) => `/variant/delete-variant/${id}`;
+export const getDeleteVariantEndpoint = (product_id: number, variant_id: number) =>
+  `/product/delete-variant/${product_id}/${variant_id}`;
 export const getViewProductEndpoint = (id: number) => `/product/view-product/${id}`;
 export const getUpdateProductStatusEndpoint = (id: number) =>
   `/product/update-product-status/${id}`;
-export const getUpdateProductEndpoint = (id: number) =>
-  `/product/update-product/${id}`;
+export const getUpdateProductEndpoint = (id: number) => `/product/update-product/${id}`;
 
 export const API_ENDPOINTS = {
   LOGIN: '/auth-user/login',
@@ -105,8 +105,8 @@ export const PRODUCT_STATUSES = {
 
 export const LIST_QUERY_DEFAULTS = {
   SEARCH: '',
-  SORT_KEY: 'id',
-  SORT_ASCENDING: 'asc',
+  SORT_KEY: 'createdAt',
+  SORT_ASCENDING: 'desc',
 } as const;
 
 export const FORM_DEFAULTS = {
@@ -136,6 +136,7 @@ export const VALIDATION_MESSAGES = {
   PRODUCT_DESCRIPTION_REQUIRED: 'Please enter description',
   PRODUCT_IMAGE_REQUIRED: 'Please upload image',
   ATTRIBUTE_REQUIRED: 'Please Select Attribute',
+  INVALID_REQUEST_AT_LOAD: 'Invalid Request! Navigating Back To Home',
 } as const;
 
 export const API_ERROR_MESSAGES = {
@@ -185,6 +186,7 @@ export const ATTRIBUTE_VALIDATION_MESSAGES = {
   CODE_REQUIRED: 'Please enter code',
   FAKE_PRICE_REQUIRED: 'Please enter fake price',
   PRICE_REQUIRED: 'Please enter price',
+  IMAGE_STRING_REQUIRED: 'Please Store Valid Image',
 } as const;
 
 export const UI_TEXT = {
@@ -298,6 +300,7 @@ export const UI_TEXT = {
     UPLOAD_FAILED: 'File Upload Failed',
     UPLOAD_SUCCEEDED_NO_IMAGE: 'Upload succeeded but the server did not return a usable image.',
     UPLOAD_SUCCESS: 'File Upload Success',
+    FETCH_PRODUCTS_FAILED: 'Fetching Product Data Failed',
     FETCH_CATEGORIES_FAILED: 'Fetching Category Data Failed',
     FETCH_SINGLE_FAILED: 'Fetching Single Category Data Failed',
     FETCH_ATTRIBUTES_FAILED: 'Fetching Attributed Failed!',
@@ -334,9 +337,10 @@ export const UI_TEXT = {
     FAKE_PRICE_PLACEHOLDER: 'Enter Fake Price',
     PRICE: 'Price',
     PRICE_PLACEHOLDER: 'Enter Price',
+    IMAGE_PLACEHOLDER: 'Add Variant Images',
     ADD: 'Add Variant',
     EDIT: 'Edit Variant',
-    FALLBACK_EDIT_ERROR: 'Nothing To Edit',
+    FALLBACK_EDIT_ERROR: 'Edit Variant Failed',
   },
   PRODUCT_FORM: {
     TITLE: 'Title',
@@ -349,5 +353,6 @@ export const UI_TEXT = {
     BASE_INFO: 'Base Product Info',
     VARIANT_INFO: 'Variant Info',
     ADD_PRODUCT: 'Add Product',
+    EDIT_PRODUCT: 'Edit Product',
   },
 } as const;
