@@ -8,6 +8,6 @@ export const ProductHome = lazy(() => import('../pages/products/ProductHome'));
 export const CategoryHomePage = lazy(() => import('../pages/category/CategoryHomePage'));
 export const CategoryAddPage = lazy(() => import('../pages/category/CategoryAddPage'));
 export const CategoryEditPage = lazy(() => import('../pages/category/CategoryEditPage'));
-export const ViewProductPage = lazy(() => import('../pages/products/ViewProductPage'));
+export const ProductSingleViewPage = lazy(() => import('../pages/products/ProductSingleViewPage'));
 export const AddProductPage = lazy(() => import('../pages/products/ProductAddPage'));
 export const ProductEditPage = lazy(() => import('../pages/products/ProductEditPage'));

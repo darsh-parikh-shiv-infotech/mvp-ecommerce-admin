@@ -13,7 +13,7 @@ import {
   ProductEditPage,
   ProductHome,
   ResetPasswordPage,
-  ViewProductPage,
+  ProductSingleViewPage,
 } from './RoutePages';
 
 export const router = createBrowserRouter(
@@ -30,7 +30,7 @@ export const router = createBrowserRouter(
           <Route path={ROUTES.CATEGORY_EDIT_PATTERN} element={<CategoryEditPage />} />
 
           <Route path={ROUTES.PRODUCT} element={<ProductHome />} />
-          <Route path={ROUTES.PRODUCT_VIEW_PATTERN} element={<ViewProductPage />} />
+          <Route path={ROUTES.PRODUCT_VIEW_PATTERN} element={<ProductSingleViewPage />} />
           <Route path={ROUTES.PRODUCT_ADD} element={<AddProductPage />} />
           <Route path={ROUTES.PRODUCT_EDIT_PATTERN} element={<ProductEditPage />} />
         </Route>

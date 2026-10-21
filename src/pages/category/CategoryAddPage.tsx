@@ -4,9 +4,13 @@ import { addCategory } from '../../store/slices/category/categoryThunk';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES, UI_TEXT } from '../../utils/constants/constants';
+import { RequestStatus } from '../../store/slices/common';
 
 const CategoryAddPage = () => {
-  const { isLoading } = useAppSelector((state) => state.category);
+  const { requests } = useAppSelector((state) => state.category);
+  const { status } = requests.create;
+  const isLoading = status === RequestStatus.LOADING;
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const addFormSubmitHandler = async (name: string) => {

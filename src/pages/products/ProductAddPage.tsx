@@ -13,7 +13,8 @@ import { toast } from 'react-toastify';
 import { addProduct, type productFormRequest } from '../../store/slices/product/productThunk';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
 import FullLoader from '../../components/common/FullLoader';
-import { createVariantClientId, toProductVariantPayload } from '../../utils/productVariants';
+import { createVariantClientId, toProductVariantPayload } from '../../utils/common/productVariants';
+import { RequestStatus } from '../../store/slices/common';
 
 const ProductAddPage = () => {
   const [step, setStep] = useState<1 | 2>(1);
@@ -22,7 +23,13 @@ const ProductAddPage = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
-  const { isLoading } = useAppSelector((state) => state.product);
+  const { requests } = useAppSelector((state) => state.product);
+  const { status: createStatus } = requests.create;
+  const { status: fetchAllAttributesStatus } = requests.fetchAllAttributes;
+
+  const isLoading =
+    createStatus === RequestStatus.LOADING || fetchAllAttributesStatus === RequestStatus.LOADING;
+
   const [variantList, setVariantList] = useState<EditableVariant[]>([]);
   const [selectedVariant, setSelectedVariant] = useState<EditableVariant | null>(null);
 
@@ -142,6 +149,7 @@ const ProductAddPage = () => {
           btnText={UI_TEXT.PRODUCT_FORM.NEXT}
           onSubmit={handleProductBtn}
           updateFormValues={newProductInfo}
+          isEnabled={true}
         />
       )}
       {step === 2 && (

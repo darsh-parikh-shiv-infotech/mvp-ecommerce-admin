@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAppDispatch } from '../../utils/hooks/hooks';
 import { logout } from '../../store/slices/auth/authSlice';
 import { ROUTES, UI_TEXT } from '../../utils/constants/constants';
-import { clearStoredAuthToken } from '../../utils/authStorage';
+import { clearStoredAuthToken } from '../../utils/common/authStorage';
 
 const NavLinks: { text: string; linkPath: string; logo: ReactNode }[] = [
   {

@@ -11,7 +11,7 @@ import {
   ROUTES,
   STORAGE_KEYS,
 } from '../utils/constants/constants';
-import { clearStoredAuthToken } from '../utils/authStorage';
+import { clearStoredAuthToken } from '../utils/common/authStorage';
 
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_ADMIN_BASE_URL,

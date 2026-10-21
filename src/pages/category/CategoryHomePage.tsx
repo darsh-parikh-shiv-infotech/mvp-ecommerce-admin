@@ -9,10 +9,17 @@ import moment from 'moment';
 import { APP_CONFIG, LIST_QUERY_DEFAULTS, ROUTES, UI_TEXT } from '../../utils/constants/constants';
 import { FaSortUp, FaSortDown } from 'react-icons/fa6';
 import ReusableModal from '../../components/common/ReusableModal';
+import { RequestStatus } from '../../store/slices/common';
 
 const CategoryHomePage = () => {
-  const { data, currentPage, numberOfRows, pageSize, totalItems, totalPages, isLoading, error } =
+  const { data, currentPage, numberOfRows, pageSize, totalItems, totalPages, requests } =
     useAppSelector((state) => state.category);
+  const { status: statusFetchAll, error: errorFetchAll } = requests.fetchAll;
+  const { status: statusDelete } = requests.delete;
+
+  const isLoading =
+    statusFetchAll === RequestStatus.LOADING || statusDelete === RequestStatus.LOADING;
+
   const dispatch = useAppDispatch();
   const [params, setParams] = useSearchParams();
   const location = useLocation();
@@ -205,10 +212,10 @@ const CategoryHomePage = () => {
                 </td>
               </tr>
             )}
-            {!isLoading && error && (
+            {!isLoading && errorFetchAll && (
               <tr>
                 <td colSpan={4} className="font-semibold text-center p-2">
-                  {error}
+                  {errorFetchAll}
                 </td>
               </tr>
             )}
@@ -255,7 +262,7 @@ const CategoryHomePage = () => {
               })}
           </tbody>
         </table>
-        {isLoading == false && error == null && (
+        {isLoading == false && errorFetchAll == null && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

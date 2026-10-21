@@ -30,7 +30,8 @@ import {
   createVariantClientId,
   toEditableVariants,
   toProductVariantPayload,
-} from '../../utils/productVariants';
+} from '../../utils/common/productVariants';
+import { RequestStatus } from '../../store/slices/common';
 
 type NavigationState = {
   from?: string;
@@ -53,7 +54,15 @@ function ProductEditPage() {
   const [isEnabled, setIsEnabled] = useState(true);
   const [newUpdatedProductInfo, setNewUpdatedProductInfo] = useState<newProductInfoProp>(null);
   const { user } = useAppSelector((state) => state.auth);
-  const { selectedProduct, isLoading, error } = useAppSelector((state) => state.product);
+  const { selectedProduct, requests } = useAppSelector((state) => state.product);
+  const { status: fetchSingleStatus } = requests.fetchSingle;
+  const { status: updateStatus, error } = requests.update;
+  const { status: deleteVariantStatus } = requests.deleteVariant;
+
+  const isLoading =
+    fetchSingleStatus === RequestStatus.LOADING ||
+    updateStatus === RequestStatus.LOADING ||
+    deleteVariantStatus === RequestStatus.LOADING;
   const [variantList, setVariantList] = useState<EditableVariant[]>([]);
   const [selectedVariant, setSelectedVariant] = useState<EditableVariant | null>(null);
 
@@ -194,7 +203,7 @@ function ProductEditPage() {
     return <Navigate to={ROUTES.PRODUCT} />;
   }
   if (isLoading) return <FullLoader />;
-  if (!selectedProduct)
+  else if (!isLoading && !selectedProduct)
     return (
       <div className="w-full min-h-[30vw] overflow-hidden flex items-center">
         <div className="w-full max-w-5xl mx-auto">
@@ -210,74 +219,74 @@ function ProductEditPage() {
         </div>
       </div>
     );
+  else if (!isLoading && selectedProduct) {
+    const productToEdit = {
+      ...selectedProduct,
+      attribute_set_id: selectedProduct.attribute_set?.id || APP_CONFIG.DEFAULT_ATTRIBUTE_SET_ID,
+    };
+    return (
+      <div className="w-full flex flex-col gap-4 my-4">
+        <div className="flex gap-2 justify-between">
+          <span className="text-3xl font-bold">{UI_TEXT.PRODUCT.EDIT_TITLE}</span>
+          <button
+            type="button"
+            onClick={handleBack}
+            className="p-2 rounded-md font-semibold hover:underline hover:cursor-pointer text-sm"
+          >
+            <span className="text-lg">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
+            {UI_TEXT.PRODUCT.BACK_TO_LISTING}
+          </button>
+        </div>
 
-  const productToEdit = {
-    ...selectedProduct,
-    attribute_set_id: selectedProduct.attribute_set?.id || APP_CONFIG.DEFAULT_ATTRIBUTE_SET_ID,
-  };
+        <div className="w-full flex flex-row gap-2 border-b border-red-300 ">
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className={`p-4 hover:cursor-pointer ${step == 1 && 'bg-red-100'}`}
+          >
+            {UI_TEXT.PRODUCT_FORM.BASE_INFO}
+          </button>
+          <button
+            type="button"
+            onClick={() => setStep(2)}
+            disabled={!isEnabled}
+            className={`p-4 hover:cursor-pointer ${step == 2 && 'bg-red-100'} disabled:opacity-50`}
+          >
+            {UI_TEXT.PRODUCT_FORM.VARIANT_INFO}
+          </button>
+        </div>
 
-  return (
-    <div className="w-full flex flex-col gap-4 my-4">
-      <div className="flex gap-2 justify-between">
-        <span className="text-3xl font-bold">{UI_TEXT.PRODUCT.EDIT_TITLE}</span>
-        <button
-          type="button"
-          onClick={handleBack}
-          className="p-2 rounded-md font-semibold hover:underline hover:cursor-pointer text-sm"
-        >
-          <span className="text-lg">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
-          {UI_TEXT.PRODUCT.BACK_TO_LISTING}
-        </button>
-      </div>
-
-      <div className="w-full flex flex-row gap-2 border-b border-red-300 ">
-        <button
-          type="button"
-          onClick={() => setStep(1)}
-          className={`p-4 hover:cursor-pointer ${step == 1 && 'bg-red-100'}`}
-        >
-          {UI_TEXT.PRODUCT_FORM.BASE_INFO}
-        </button>
-        <button
-          type="button"
-          onClick={() => setStep(2)}
-          disabled={!isEnabled}
-          className={`p-4 hover:cursor-pointer ${step == 2 && 'bg-red-100'} disabled:opacity-50`}
-        >
-          {UI_TEXT.PRODUCT_FORM.VARIANT_INFO}
-        </button>
-      </div>
-
-      {step === 1 && (
-        <BaseProductForm
-          btnText={UI_TEXT.PRODUCT_FORM.NEXT}
-          onSubmit={handleProductBtn}
-          updateFormValues={productToEdit}
-          isEnabled={isEnabled}
-          setIsEnabled={setIsEnabled}
-        />
-      )}
-      {step === 2 && (
-        <>
-          <BaseVariantForm onSubmit={handleVariantFormBtn} updateFormValues={selectedVariant} />
-          <BaseVariantTable
-            variantList={variantList}
-            editHandler={handleEditVariant}
-            deleteHandler={handleDeleteVariant}
+        {step === 1 && (
+          <BaseProductForm
+            btnText={UI_TEXT.PRODUCT_FORM.NEXT}
+            onSubmit={handleProductBtn}
+            updateFormValues={productToEdit}
+            isEnabled={isEnabled}
+            setIsEnabled={setIsEnabled}
           />
-        </>
-      )}
-      {step === 2 && variantList.length > 0 && (
-        <button
-          type="button"
-          onClick={handleEditingProduct}
-          className="inline-flex self-end w-fit bg-blue-200 rounded-md px-5 py-2 hover:cursor-pointer hover:opacity-70"
-        >
-          {UI_TEXT.PRODUCT_FORM.EDIT_PRODUCT}
-        </button>
-      )}
-    </div>
-  );
+        )}
+        {step === 2 && (
+          <>
+            <BaseVariantForm onSubmit={handleVariantFormBtn} updateFormValues={selectedVariant} />
+            <BaseVariantTable
+              variantList={variantList}
+              editHandler={handleEditVariant}
+              deleteHandler={handleDeleteVariant}
+            />
+          </>
+        )}
+        {step === 2 && variantList.length > 0 && (
+          <button
+            type="button"
+            onClick={handleEditingProduct}
+            className="inline-flex self-end w-fit bg-blue-200 rounded-md px-5 py-2 hover:cursor-pointer hover:opacity-70"
+          >
+            {UI_TEXT.PRODUCT_FORM.EDIT_PRODUCT}
+          </button>
+        )}
+      </div>
+    );
+  }
 }
 
 export default ProductEditPage;

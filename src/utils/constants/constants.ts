@@ -177,6 +177,10 @@ export const PRODUCT_STATE_ERROR_MESSAGES = {
   FETCH_ATTRIBUTES_FAILED: 'Fetching Attributes Data Failed.',
   FETCH_SINGLE_FAILED: 'Fetching Single Product Data Failed.',
   UPLOAD_FAILED: 'File Upload Failed.',
+  UPDATE_FAILED: 'Updating Product Operation Failed.',
+  CHANGE_STATUS_FAILED: 'Changing Product Status Failed.',
+  ADD_FAILED: 'Adding Product Operation Failed.',
+  DELETE_FAILED: 'Deleting Product Operation Failed.',
 } as const;
 
 export const ATTRIBUTE_VALIDATION_MESSAGES = {

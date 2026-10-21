@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { viewProduct } from '../../store/slices/product/productThunk';
 import { API_ENDPOINTS, APP_CONFIG, ROUTES, UI_TEXT } from '../../utils/constants/constants';
 import type { product } from '../../store/slices/product/productSlice';
+import { RequestStatus } from '../../store/slices/common';
 
 import Spinner from '../../components/common/Spinner';
 import moment from 'moment';
@@ -15,7 +16,7 @@ type NavigationState = {
   from?: string;
 };
 
-const ViewProductPage = () => {
+const ProductSingleViewPage = () => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,7 +29,10 @@ const ViewProductPage = () => {
     }
   };
 
-  const { selectedProduct, isLoading, error } = useAppSelector((state) => state.product);
+  const { selectedProduct, requests } = useAppSelector((state) => state.product);
+  const { status: fetchSingleStatus, error } = requests.fetchSingle;
+  const isLoading = fetchSingleStatus === RequestStatus.LOADING;
+
   const dispatch = useAppDispatch();
   const fetchData = useCallback(
     async (id: number) => {
@@ -125,4 +129,4 @@ const ProductTable = ({ product }: ProductTableProp) => {
   );
 };
 
-export default ViewProductPage;
+export default ProductSingleViewPage;

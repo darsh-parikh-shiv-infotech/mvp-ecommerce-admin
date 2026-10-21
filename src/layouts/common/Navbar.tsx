@@ -2,7 +2,7 @@ import { logout } from '../../store/slices/auth/authSlice';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
 import HomeNavLogoButton from './HomeNavLogoButton';
 import { ASSET_URLS, UI_TEXT } from '../../utils/constants/constants';
-import { clearStoredAuthToken } from '../../utils/authStorage';
+import { clearStoredAuthToken } from '../../utils/common/authStorage';
 
 const Navbar = () => {
   const { user } = useAppSelector((state) => state.auth);

@@ -16,10 +16,17 @@ import {
   ROUTES,
   UI_TEXT,
 } from '../../utils/constants/constants';
+import { RequestStatus } from '../../store/slices/common';
 
 const ProductHome = () => {
-  const { data, currentPage, numberOfRows, pageSize, totalItems, totalPages, isLoading, error } =
+  const { data, currentPage, numberOfRows, pageSize, totalItems, totalPages, requests } =
     useAppSelector((state) => state.product);
+  const { status: fetchAllStatus, error } = requests.fetchAll;
+  const { status: changeStatusStatus } = requests.changeStatus;
+
+  const isDataLoading =
+    fetchAllStatus === RequestStatus.LOADING || changeStatusStatus === RequestStatus.LOADING;
+
   const dispatch = useAppDispatch();
   const [params, setParams] = useSearchParams();
   const location = useLocation();
@@ -227,21 +234,21 @@ const ProductHome = () => {
             </tr>
           </thead>
           <tbody>
-            {isLoading && (
+            {isDataLoading && (
               <tr>
                 <td colSpan={7}>
                   <Spinner />
                 </td>
               </tr>
             )}
-            {!isLoading && error && (
+            {!isDataLoading && error && (
               <tr>
                 <td colSpan={7} className="font-semibold text-center p-2">
                   {error}
                 </td>
               </tr>
             )}
-            {!isLoading &&
+            {!isDataLoading &&
               data &&
               data.map((row, index) => {
                 return (
@@ -315,7 +322,7 @@ const ProductHome = () => {
               })}
           </tbody>
         </table>
-        {isLoading == false && error == null && (
+        {isDataLoading == false && error == null && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

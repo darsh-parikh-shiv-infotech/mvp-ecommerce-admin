@@ -4,7 +4,6 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
 import { changePassword, forgotPassword } from '../../store/slices/auth/AuthThunk';
-import { clearAuthError } from '../../store/slices/auth/authSlice';
 import BaseForgotPasswordForm from '../../components/BaseForgotPasswordForm';
 import BaseChangePasswordForm from '../../components/BaseChangePasswordForm';
 import BaseAppInfoAuth from '../../components/BaseAppInfoAuth';
@@ -14,9 +13,15 @@ import {
   ROUTES,
   UI_TEXT,
 } from '../../utils/constants/constants';
+import { RequestStatus } from '../../store/slices/common';
 
 const ResetPasswordPage = () => {
-  const { loading } = useAppSelector((state) => state.auth);
+  const { requests } = useAppSelector((state) => state.auth);
+  const { status: statusForgotPassword } = requests.forgotPassword;
+  const { status: statusChangePassword } = requests.changePassword;
+  const isForgotPasswordLoading = statusForgotPassword == RequestStatus.LOADING;
+  const isChangePasswordLoading = statusChangePassword == RequestStatus.LOADING;
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -38,7 +43,6 @@ const ResetPasswordPage = () => {
           result.error.message ??
           AUTH_ERROR_MESSAGES.FORGOT_PASSWORD_FAILED,
       );
-      dispatch(clearAuthError());
     }
     return;
   };
@@ -71,7 +75,6 @@ const ResetPasswordPage = () => {
           result.error.message ??
           AUTH_ERROR_MESSAGES.CHANGE_PASSWORD_FAILED,
       );
-      dispatch(clearAuthError());
     }
 
     return;
@@ -98,11 +101,14 @@ const ResetPasswordPage = () => {
             </div>
 
             {step === 1 && (
-              <BaseForgotPasswordForm loading={loading} submitHandler={forgotPasswordHandler} />
+              <BaseForgotPasswordForm
+                loading={isForgotPasswordLoading}
+                submitHandler={forgotPasswordHandler}
+              />
             )}
             {step === 2 && changePasswordEmail.length > 0 && (
               <BaseChangePasswordForm
-                loading={loading}
+                loading={isChangePasswordLoading}
                 email={changePasswordEmail}
                 submitHandler={resetPasswordHandler}
                 resendHandler={resendOtpHandler}

@@ -1,4 +1,4 @@
-import type { EditableVariant, variant } from '../store/slices/product/productSlice';
+import type { EditableVariant, variant } from '../../store/slices/product/productSlice';
 
 export const createVariantClientId = () => `client-${crypto.randomUUID()}`;
 

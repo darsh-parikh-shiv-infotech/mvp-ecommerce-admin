@@ -244,9 +244,8 @@ const BaseChangePasswordForm = ({
         {canResend ? (
           <button
             type="button"
-            className="font-medium text-sm text-red-600 hover:border-b"
+            className="font-medium text-sm text-red-600 hover:border-b hover:cursor-pointer"
             onClick={handleResendOtp}
-            disabled={loading}
           >
             {UI_TEXT.AUTH.RESEND_OTP}
           </button>
@@ -261,13 +260,16 @@ const BaseChangePasswordForm = ({
 
       <button
         type="submit"
-        className={`rounded-lg bg-linear-to-r from-red-700 to-red-800 p-2 font-bold text-white shadow-rose-400 hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-md ${loading && 'opacity-50'}`}
+        className={`rounded-lg bg-linear-to-r from-red-700 to-red-800 p-2 font-bold text-white shadow-rose-400 hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-md ${loading && 'opacity-50'} hover:cursor-pointer`}
         disabled={loading}
       >
         {UI_TEXT.AUTH.UPDATE_PASSWORD}
       </button>
       <div className="flex justify-center">
-        <Link to={ROUTES.LOGIN} className="font-medium text-sm text-red-600 hover:border-b">
+        <Link
+          to={ROUTES.LOGIN}
+          className="font-medium text-sm text-red-600 hover:border-b hover:cursor-pointer"
+        >
           {UI_TEXT.COMMON.BACK_TO_SIGN_IN}
         </Link>
       </div>

@@ -12,6 +12,7 @@ import {
   VALIDATION_MESSAGES,
 } from '../../utils/constants/constants';
 import FullLoader from '../../components/common/FullLoader';
+import { RequestStatus } from '../../store/slices/common';
 
 type NavigationState = {
   from?: string;
@@ -29,7 +30,13 @@ const CategoryEditPage = () => {
       navigate(ROUTES.CATEGORY);
     }
   };
-  const { isLoading, selectedCategory, error } = useAppSelector((state) => state.category);
+  const { selectedCategory, requests } = useAppSelector((state) => state.category);
+  const { status: statusFetchSingle, error } = requests.fetchSingle;
+  const { status: statusUpdate } = requests.update;
+
+  const isLoading = statusFetchSingle === RequestStatus.LOADING;
+  const formLoading = statusUpdate === RequestStatus.LOADING;
+
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -37,7 +44,6 @@ const CategoryEditPage = () => {
       const result = await dispatch(viewSingleCategory({ id }));
       if (viewSingleCategory.rejected.match(result)) {
         toast.error(result.payload?.message || UI_TEXT.CATEGORY.FETCH_FAILED);
-        return navigate(ROUTES.CATEGORY);
       }
     }
     if (id && !isNaN(Number(id))) {
@@ -99,7 +105,7 @@ const CategoryEditPage = () => {
         {isLoading && <Spinner />}
         {!isLoading && selectedCategory && (
           <BaseCategoryForm
-            loading={isLoading}
+            loading={formLoading}
             onSubmit={editFormSubmitHandler}
             updateValue={selectedCategory}
             submitBtnText={UI_TEXT.CATEGORY.EDIT}
