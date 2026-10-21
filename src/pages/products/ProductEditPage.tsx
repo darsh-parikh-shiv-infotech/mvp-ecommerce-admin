@@ -1,4 +1,4 @@
-import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
 import {
   deleteVariant,
@@ -12,7 +12,6 @@ import {
   UI_TEXT,
   APP_CONFIG,
   PRODUCT_STATUSES,
-  PRODUCT_STATE_ERROR_MESSAGES,
   API_ERROR_MESSAGES,
   VALIDATION_MESSAGES,
 } from '../../utils/constants/constants';
@@ -56,7 +55,7 @@ function ProductEditPage() {
   const { user } = useAppSelector((state) => state.auth);
   const { selectedProduct, requests } = useAppSelector((state) => state.product);
   const { status: fetchSingleStatus } = requests.fetchSingle;
-  const { status: updateStatus, error } = requests.update;
+  const { status: updateStatus } = requests.update;
   const { status: deleteVariantStatus } = requests.deleteVariant;
 
   const isLoading =
@@ -195,7 +194,7 @@ function ProductEditPage() {
       fetchData(Number(id));
     } else {
       toast.error(VALIDATION_MESSAGES.INVALID_REQUEST_AT_LOAD);
-      navigate('/product');
+      navigate(ROUTES.PRODUCT);
     }
   }, [dispatch, id, navigate]);
 
@@ -203,22 +202,7 @@ function ProductEditPage() {
     return <Navigate to={ROUTES.PRODUCT} />;
   }
   if (isLoading) return <FullLoader />;
-  else if (!isLoading && !selectedProduct)
-    return (
-      <div className="w-full min-h-[30vw] overflow-hidden flex items-center">
-        <div className="w-full max-w-5xl mx-auto">
-          <div className="flex flex-col gap-4 items-center text-center text-2xl font-semibold">
-            {error || PRODUCT_STATE_ERROR_MESSAGES.FETCH_FAILED}
-            <Link
-              to={'/product'}
-              className="text-sm w-fit bg-blue-300 rounded-md hover:opacity-70 hover:cursor-pointer p-3"
-            >
-              Return To Product Home Page
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
+  else if (!isLoading && !selectedProduct) return <Navigate to={ROUTES.PRODUCT} />;
   else if (!isLoading && selectedProduct) {
     const productToEdit = {
       ...selectedProduct,
@@ -227,7 +211,9 @@ function ProductEditPage() {
     return (
       <div className="w-full flex flex-col gap-4 my-4">
         <div className="flex flex-col-reverse md:flex-row md:justify-between gap-2">
-          <span className="text-lg font-semibold md:text-2xl text-center">{UI_TEXT.PRODUCT.EDIT_TITLE}</span>
+          <span className="text-lg font-semibold md:text-2xl text-center">
+            {UI_TEXT.PRODUCT.EDIT_TITLE}
+          </span>
           <button
             type="button"
             onClick={handleBack}
@@ -266,7 +252,7 @@ function ProductEditPage() {
           />
         )}
         {step === 2 && (
-          <div className='flex flex-col-reverse md:flex-col gap-2'>
+          <div className="flex flex-col-reverse md:flex-col gap-2">
             <BaseVariantForm onSubmit={handleVariantFormBtn} updateFormValues={selectedVariant} />
             <BaseVariantTable
               variantList={variantList}

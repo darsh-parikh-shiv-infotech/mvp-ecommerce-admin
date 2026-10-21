@@ -4,7 +4,13 @@ import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
 import { toast } from 'react-toastify';
 
 import { viewProduct } from '../../store/slices/product/productThunk';
-import { API_ENDPOINTS, APP_CONFIG, ROUTES, UI_TEXT } from '../../utils/constants/constants';
+import {
+  API_ENDPOINTS,
+  APP_CONFIG,
+  ROUTES,
+  UI_TEXT,
+  VALIDATION_MESSAGES,
+} from '../../utils/constants/constants';
 import type { product } from '../../store/slices/product/productSlice';
 import { RequestStatus } from '../../store/slices/common';
 
@@ -40,6 +46,7 @@ const ProductSingleViewPage = () => {
         const result = await dispatch(viewProduct({ id }));
         if (viewProduct.rejected.match(result)) {
           toast.error(result.payload?.message || UI_TEXT.PRODUCT.FETCH_SINGLE_FAILED);
+          navigate(ROUTES.PRODUCT);
         }
       }
     },
@@ -47,23 +54,30 @@ const ProductSingleViewPage = () => {
   );
 
   useEffect(() => {
-    fetchData(Number(id));
+    if (id && !isNaN(Number(id))) {
+      fetchData(Number(id));
+    } else {
+      toast.error(VALIDATION_MESSAGES.INVALID_REQUEST_AT_LOAD);
+      navigate(ROUTES.PRODUCT);
+    }
   }, [fetchData, id]);
 
   return (
-    <div className='mt-7'>
+    <div className="mt-7">
       <div className="flex flex-col-reverse md:flex-row md:justify-between gap-2">
-          <span className="text-lg font-semibold md:text-2xl text-center">{UI_TEXT.PRODUCT.VIEW_TITLE}</span>
+        <span className="text-lg font-semibold md:text-2xl text-center">
+          {UI_TEXT.PRODUCT.VIEW_TITLE}
+        </span>
 
-          <button
-            type="button"
-            onClick={handleBack}
-            className="inline-flex items-center gap-1 self-end md:block p-2 rounded-md hover:underline hover:cursor-pointer text-xs "
-          >
-            <span className="text-md">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
-            {UI_TEXT.PRODUCT.BACK_TO_LISTING}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleBack}
+          className="inline-flex items-center gap-1 self-end md:block p-2 rounded-md hover:underline hover:cursor-pointer text-xs "
+        >
+          <span className="text-md">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
+          {UI_TEXT.PRODUCT.BACK_TO_LISTING}
+        </button>
+      </div>
       {isLoading && <Spinner />}
       {!isLoading && !error && selectedProduct && <ProductTable product={selectedProduct} />}
 

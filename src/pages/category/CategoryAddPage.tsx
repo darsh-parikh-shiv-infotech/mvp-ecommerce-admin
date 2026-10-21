@@ -22,7 +22,6 @@ const CategoryAddPage = () => {
     }
   };
 
-
   const { requests } = useAppSelector((state) => state.category);
   const { status } = requests.create;
   const isLoading = status === RequestStatus.LOADING;
@@ -43,7 +42,9 @@ const CategoryAddPage = () => {
     <div className="w-full max-w-screen-sm mx-auto my-7">
       <div className="flex flex-col gap-5">
         <div className="flex flex-col-reverse md:flex-row md:justify-between gap-2">
-          <span className="text-lg font-semibold md:text-2xl text-center">{UI_TEXT.CATEGORY.ADD_FORM_TITLE}</span>
+          <span className="text-lg font-semibold md:text-2xl text-center">
+            {UI_TEXT.CATEGORY.ADD_FORM_TITLE}
+          </span>
 
           <button
             type="button"

@@ -1,16 +1,11 @@
-import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
 import { useEffect } from 'react';
 import { editCategory, viewSingleCategory } from '../../store/slices/category/categoryThunk';
 import { toast } from 'react-toastify';
 import BaseCategoryForm from '../../components/BaseCategoryForm';
 import Spinner from '../../components/common/Spinner';
-import {
-  CATEGORY_STATE_ERROR_MESSAGES,
-  ROUTES,
-  UI_TEXT,
-  VALIDATION_MESSAGES,
-} from '../../utils/constants/constants';
+import { ROUTES, UI_TEXT, VALIDATION_MESSAGES } from '../../utils/constants/constants';
 import FullLoader from '../../components/common/FullLoader';
 import { RequestStatus } from '../../store/slices/common';
 
@@ -31,7 +26,7 @@ const CategoryEditPage = () => {
     }
   };
   const { selectedCategory, requests } = useAppSelector((state) => state.category);
-  const { status: statusFetchSingle, error } = requests.fetchSingle;
+  const { status: statusFetchSingle } = requests.fetchSingle;
   const { status: statusUpdate } = requests.update;
 
   const isLoading = statusFetchSingle === RequestStatus.LOADING;
@@ -44,6 +39,7 @@ const CategoryEditPage = () => {
       const result = await dispatch(viewSingleCategory({ id }));
       if (viewSingleCategory.rejected.match(result)) {
         toast.error(result.payload?.message || UI_TEXT.CATEGORY.FETCH_FAILED);
+        navigate(ROUTES.CATEGORY);
       }
     }
     if (id && !isNaN(Number(id))) {
@@ -70,28 +66,14 @@ const CategoryEditPage = () => {
     return <Navigate to={ROUTES.CATEGORY} />;
   }
   if (isLoading) return <FullLoader />;
-  if (!selectedCategory)
-    return (
-      <div className="w-full min-h-[30vw] overflow-hidden flex items-center">
-        <div className="w-full max-w-5xl mx-auto">
-          <div className="flex flex-col gap-4 items-center text-center text-2xl font-semibold">
-            {error || CATEGORY_STATE_ERROR_MESSAGES.FETCH_FAILED}
-            <Link
-              to={ROUTES.CATEGORY}
-              className="text-sm w-fit bg-blue-300 rounded-md hover:opacity-70 hover:cursor-pointer p-3"
-            >
-              Return To Product Home Page
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
 
   return (
     <div className="w-full max-w-screen-sm mx-auto my-9">
       <div className="flex flex-col gap-5">
         <div className="flex flex-col-reverse md:flex-row md:justify-between gap-2">
-          <span className="text-lg font-semibold md:text-2xl text-center">{UI_TEXT.CATEGORY.EDIT_FORM_TITLE}</span>
+          <span className="text-lg font-semibold md:text-2xl text-center">
+            {UI_TEXT.CATEGORY.EDIT_FORM_TITLE}
+          </span>
 
           <button
             type="button"

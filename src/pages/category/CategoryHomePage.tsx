@@ -6,7 +6,13 @@ import Pagination from '../../components/common/Pagination';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import moment from 'moment';
-import { APP_CONFIG, LIST_QUERY_DEFAULTS, ROUTES, UI_TEXT } from '../../utils/constants/constants';
+import {
+  APP_CONFIG,
+  LIST_QUERY_DEFAULTS,
+  PRODUCT_STATE_ERROR_MESSAGES,
+  ROUTES,
+  UI_TEXT,
+} from '../../utils/constants/constants';
 import { FaSortUp, FaSortDown } from 'react-icons/fa6';
 import ReusableModal from '../../components/common/ReusableModal';
 import { RequestStatus } from '../../store/slices/common';
@@ -150,7 +156,9 @@ const CategoryHomePage = () => {
 
   return (
     <>
-      <span className="inline-block text-lg md:text-3xl font-bold my-2">{UI_TEXT.CATEGORY.VIEW_ALL}</span>
+      <span className="inline-block text-lg md:text-3xl font-bold my-2">
+        {UI_TEXT.CATEGORY.VIEW_ALL}
+      </span>
 
       <div className="bg-red-50 shadow-xs rounded-base border border-default">
         <div className="flex md:justify-end items-center gap-2 my-2 mx-2">
@@ -170,11 +178,15 @@ const CategoryHomePage = () => {
             {UI_TEXT.CATEGORY.ADD}
           </Link>
         </div>
-        <div className='relative overflow-x-auto mt-5 '>
+        <div className="relative overflow-x-auto mt-5 ">
           <table className="w-full text-2xs md:text-sm text-left rtl:text-right text-body">
             <thead className="text-2xs md:text-sm text-body bg-red-100 border-b border-default-medium">
               <tr>
-                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => handleSort('id')}>
+                <th
+                  scope="col"
+                  className="px-6 py-3 cursor-pointer"
+                  onClick={() => handleSort('id')}
+                >
                   <div className="flex flex-row gap-3 items-center text-center ">
                     {UI_TEXT.CATEGORY.ID}
                     {renderSortIcon('id')}
@@ -220,7 +232,15 @@ const CategoryHomePage = () => {
                   </td>
                 </tr>
               )}
+              {!isLoading && !errorFetchAll && data.length == 0 && (
+                <tr>
+                  <td colSpan={4} className="font-semibold text-center p-2">
+                    {PRODUCT_STATE_ERROR_MESSAGES.NO_DATA_FOUND}
+                  </td>
+                </tr>
+              )}
               {!isLoading &&
+                data.length > 0 &&
                 data &&
                 data.map((row, index) => {
                   return (
@@ -264,7 +284,7 @@ const CategoryHomePage = () => {
             </tbody>
           </table>
         </div>
-        {isLoading == false && errorFetchAll == null && (
+        {isLoading == false && errorFetchAll == null && data.length > 0 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -285,7 +305,9 @@ const CategoryHomePage = () => {
         }}
       >
         <div className="w-full flex flex-col my-5 gap-4 items-center">
-          <span className="text-md md:text-2xl text-center font-semibold">Are You Sure You Want To Delete?</span>
+          <span className="text-md md:text-2xl text-center font-semibold">
+            Are You Sure You Want To Delete?
+          </span>
 
           <div className="w-full flex my-2 justify-center gap-2">
             <button

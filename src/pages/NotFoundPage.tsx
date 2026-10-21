@@ -1,13 +1,9 @@
 import { Link } from 'react-router-dom';
-import Sidebar from '../layouts/common/Sidebar';
-import Navbar from '../layouts/common/Navbar';
 import { ROUTES, UI_TEXT } from '../utils/constants/constants';
 
 const NotFoundPage = () => {
   return (
     <>
-      <Sidebar />
-      <Navbar />
       <div className="w-full h-dvh overflow-hidden bg-red-100">
         <div className="h-full flex flex-col items-center gap-5 justify-center">
           <span className="text-4xl font-bold">{UI_TEXT.COMMON.PAGE_NOT_FOUND}</span>

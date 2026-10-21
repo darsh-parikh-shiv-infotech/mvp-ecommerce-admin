@@ -9,7 +9,7 @@ const MainLayout = () => {
     initFlowbite();
   }, []);
   return (
-    <div className='bg-red-100/50'>
+    <div className="bg-red-100/50">
       <Navbar />
       <Sidebar />
 

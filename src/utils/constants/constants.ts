@@ -181,6 +181,7 @@ export const PRODUCT_STATE_ERROR_MESSAGES = {
   CHANGE_STATUS_FAILED: 'Changing Product Status Failed.',
   ADD_FAILED: 'Adding Product Operation Failed.',
   DELETE_FAILED: 'Deleting Product Operation Failed.',
+  NO_DATA_FOUND: 'No Data Found',
 } as const;
 
 export const ATTRIBUTE_VALIDATION_MESSAGES = {

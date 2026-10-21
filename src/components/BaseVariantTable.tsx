@@ -9,9 +9,9 @@ interface BaseVariantTableProp {
 const BaseVariantTable = ({ variantList, editHandler, deleteHandler }: BaseVariantTableProp) => {
   if (!variantList || variantList.length == 0) return;
   return (
-    <div className='flex flex-col mt-4 gap-2'>
-      <span className=''>{UI_TEXT.PRODUCT.VARIANT_DETAILS}</span>
-      <div className='relative overflow-x-auto shadow-xs rounded-base border border-default'>
+    <div className="flex flex-col mt-4 gap-2">
+      <span className="">{UI_TEXT.PRODUCT.VARIANT_DETAILS}</span>
+      <div className="relative overflow-x-auto shadow-xs rounded-base border border-default">
         <table className="w-full text-2xs md:text-sm text-left rtl:text-right text-body">
           <thead className="text-2xs md:text-sm text-body bg-red-100 border-b border-default-medium">
             <tr>
@@ -51,8 +51,8 @@ const BaseVariantTable = ({ variantList, editHandler, deleteHandler }: BaseVaria
                           variant.product_variant_image[0].startsWith('http')
                             ? variant.product_variant_image[0]
                             : import.meta.env.VITE_API_SERVER_BASE_URL +
-                            API_ENDPOINTS.UPLOADED_FILE_BASE_PATH +
-                            variant.product_variant_image[0]
+                              API_ENDPOINTS.UPLOADED_FILE_BASE_PATH +
+                              variant.product_variant_image[0]
                         }
                         alt={UI_TEXT.COMMON.PREVIEW_IMAGE_ALT}
                       />
@@ -67,7 +67,7 @@ const BaseVariantTable = ({ variantList, editHandler, deleteHandler }: BaseVaria
                   <td className="px-6 py-4">
                     {variant.status &&
                       variant.status.toString().charAt(0).toUpperCase() +
-                      variant.status.toString().slice(1)}
+                        variant.status.toString().slice(1)}
                   </td>
                   {editHandler && deleteHandler && (
                     <td>

@@ -132,7 +132,9 @@ const ProductAddPage = () => {
   return (
     <div className="w-full flex flex-col gap-4 my-4">
       <div className="flex flex-col-reverse md:flex-row md:justify-between gap-2">
-        <span className="text-lg font-semibold md:text-2xl text-center">{UI_TEXT.PRODUCT.ADD_TITLE}</span>
+        <span className="text-lg font-semibold md:text-2xl text-center">
+          {UI_TEXT.PRODUCT.ADD_TITLE}
+        </span>
         <button
           type="button"
           onClick={handleBack}

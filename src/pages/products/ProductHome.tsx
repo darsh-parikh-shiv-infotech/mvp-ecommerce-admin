@@ -12,6 +12,7 @@ import {
   APP_CONFIG,
   FORM_DEFAULTS,
   LIST_QUERY_DEFAULTS,
+  PRODUCT_STATE_ERROR_MESSAGES,
   PRODUCT_STATUSES,
   ROUTES,
   UI_TEXT,
@@ -164,7 +165,9 @@ const ProductHome = () => {
   }, [debouncedSearchInput, handleSearch, search, searchInput]);
   return (
     <>
-      <span className="inline-block text-lg md:text-3xl font-bold my-2">{UI_TEXT.PRODUCT.VIEW_ALL}</span>
+      <span className="inline-block text-lg md:text-3xl font-bold my-2">
+        {UI_TEXT.PRODUCT.VIEW_ALL}
+      </span>
 
       <div className="bg-red-50 shadow-xs rounded-base border border-default">
         <div className="flex justify-between md:justify-end items-center gap-2 my-2 mx-2">
@@ -187,7 +190,11 @@ const ProductHome = () => {
           <table className="w-full text-2xs md:text-sm text-left rtl:text-right text-body">
             <thead className="text-2xs md:text-sm text-body bg-red-100 border-b border-default-medium">
               <tr>
-                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => handleSort('id')}>
+                <th
+                  scope="col"
+                  className="px-6 py-3 cursor-pointer"
+                  onClick={() => handleSort('id')}
+                >
                   <div className="flex flex-row gap-3 items-center text-center">
                     {UI_TEXT.PRODUCT.ID}
                     {renderSortIcon('id')}
@@ -249,7 +256,15 @@ const ProductHome = () => {
                   </td>
                 </tr>
               )}
+              {!isDataLoading && !error && data.length == 0 && (
+                <tr>
+                  <td colSpan={7} className="font-semibold text-center p-2">
+                    {PRODUCT_STATE_ERROR_MESSAGES.NO_DATA_FOUND}
+                  </td>
+                </tr>
+              )}
               {!isDataLoading &&
+                data.length > 0 &&
                 data &&
                 data.map((row, index) => {
                   return (
@@ -282,7 +297,7 @@ const ProductHome = () => {
                       <td className="px-6 py-4">
                         {row.status
                           ? row.status.toString().charAt(0).toUpperCase() +
-                          row.status.toString().slice(1)
+                            row.status.toString().slice(1)
                           : FORM_DEFAULTS.EMPTY_STRING}
                       </td>
                       <td className="px-6 py-4">
@@ -324,7 +339,7 @@ const ProductHome = () => {
             </tbody>
           </table>
         </div>
-        {isDataLoading == false && error == null && (
+        {isDataLoading == false && error == null && data && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
