@@ -46,15 +46,14 @@ A React and TypeScript admin dashboard for managing products, product variants, 
    Copy-Item .env.example .env
    ```
 
-3. Set the API URLs in `.env`:
+3. Set the backend origin in `.env`:
 
-   | Variable                   | Purpose                                                                                                     |
-   | -------------------------- | ----------------------------------------------------------------------------------------------------------- |
-   | `VITE_API_ADMIN_BASE_URL`  | Base URL used by Axios. Use `/api` for the Vite development proxy, or an absolute API URL for a deployment. |
-   | `VITE_API_SERVER_BASE_URL` | Backend origin used to display uploaded images.                                                             |
-   | `VITE_API_PROXY_TARGET`    | Backend origin targeted by the Vite development proxy when the admin API base is `/api`.                    |
+   | Variable                   | Purpose                                                |
+   | -------------------------- | ------------------------------------------------------ |
+   | `VITE_API_SERVER_BASE_URL` | Backend origin used to display uploaded images.        |
+   | `VITE_API_PROXY_TARGET`    | Backend origin targeted by the Vite development proxy. |
 
-   Keep secrets out of all `VITE_*` variables: Vite embeds these values in client-side output. New local environment files are ignored by Git; commit only `.env.example`. Note: `.env` is already tracked in this repository, so the ignore rule does not untrack it. Do not put credentials in it; remove it from the repository after preserving any needed local settings.
+   Keep secrets out of all `VITE_*` variables: Vite embeds these values in client-side output. Local environment files are ignored by Git; commit only `.env.example`. The local `.env` was removed from Git tracking, but this does not erase any values from earlier commits. Rotate any credentials that may have been committed.
 
 4. Start the development server:
 
@@ -62,7 +61,7 @@ A React and TypeScript admin dashboard for managing products, product variants, 
    npm run dev
    ```
 
-The Vite proxy forwards `/api` requests to `VITE_API_PROXY_TARGET` and removes the `/api` prefix before forwarding. Make sure the backend supports the endpoints configured in `src/utils/constants/constants.ts`.
+The app always sends API requests to the same-origin `/api` path. In local development, the Vite proxy forwards requests to `VITE_API_PROXY_TARGET` (or `VITE_API_SERVER_BASE_URL`) and removes the `/api` prefix. In production, `vercel.json` rewrites `/api/*` to the Render backend and serves the SPA entry point for client-side routes. If the backend origin changes, update the Vercel rewrite destination and the Vite proxy target. Make sure the backend supports the endpoints configured in `src/utils/constants/constants.ts`.
 
 ## Available scripts
 
