@@ -1,64 +1,74 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import BaseProductForm, {
   type newProductInfoProp,
   type ProductFormValues,
 } from '../../components/BaseProductForm';
 import BaseVariantForm from '../../components/BaseVariantForm';
-import type { UiVariant } from '../../store/slices/product/productSlice';
+import type { VariantFormValues } from '../../components/BaseVariantForm';
+import type { EditableVariant } from '../../store/slices/product/productSlice';
 import BaseVariantTable from '../../components/BaseVariantTable';
 import { PRODUCT_STATUSES, ROUTES, UI_TEXT } from '../../utils/constants/constants';
 import { toast } from 'react-toastify';
 import { addProduct, type productFormRequest } from '../../store/slices/product/productThunk';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
 import FullLoader from '../../components/common/FullLoader';
+import { createVariantClientId, toProductVariantPayload } from '../../utils/common/productVariants';
+import { RequestStatus } from '../../store/slices/common';
 
+type NavigationState = {
+  from?: string;
+};
 const ProductAddPage = () => {
   const [step, setStep] = useState<1 | 2>(1);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const state = location.state as NavigationState | null;
+  const handleBack = () => {
+    if (state?.from) {
+      navigate(state.from);
+    } else {
+      navigate(ROUTES.CATEGORY);
+    }
+  };
+
   const [secondStepEnable, setSecondStepEnable] = useState(false);
   const [newProductInfo, setNewProductInfo] = useState<newProductInfoProp>(null);
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
-  const { isLoading } = useAppSelector((state) => state.product);
-  const [variantList, setVariantList] = useState<Partial<UiVariant>[]>([]);
-  const [selectedVariant, setSelectedVariant] = useState<Partial<UiVariant> | null>(null);
+  const { requests } = useAppSelector((state) => state.product);
+  const { status: createStatus } = requests.create;
+  const { status: fetchAllAttributesStatus } = requests.fetchAllAttributes;
+
+  const isLoading =
+    createStatus === RequestStatus.LOADING || fetchAllAttributesStatus === RequestStatus.LOADING;
+
+  const [variantList, setVariantList] = useState<EditableVariant[]>([]);
+  const [selectedVariant, setSelectedVariant] = useState<EditableVariant | null>(null);
 
   const handleProductBtn = (formValues: ProductFormValues) => {
     setNewProductInfo({ ...formValues });
     setSecondStepEnable(true);
     setStep(2);
   };
-  const handleVariantFormBtn = (formValues: Partial<UiVariant | null>) => {
-    if (formValues && formValues.isEditing == false) {
-      const newVariant: Partial<UiVariant> = {
-        ui_id: new Date().getTime(),
-        title: formValues.title,
-        fake_price: formValues.fake_price,
-        price: formValues.price,
-        on_hand_quantity: formValues.on_hand_quantity,
-        available_quantity: formValues.available_quantity,
-        code: formValues.code,
-        product_variant_image: formValues.product_variant_image,
-        status: PRODUCT_STATUSES.ACTIVE,
-      };
-      setVariantList([...variantList, newVariant]);
-      setSelectedVariant(null);
+  const handleVariantFormBtn = (formValues: VariantFormValues) => {
+    if (formValues.clientId) {
+      setVariantList((currentVariants) =>
+        currentVariants.map((variant) =>
+          variant.clientId === formValues.clientId ? { ...variant, ...formValues } : variant,
+        ),
+      );
+    } else {
+      setVariantList((currentVariants) => [
+        ...currentVariants,
+        {
+          ...formValues,
+          clientId: createVariantClientId(),
+          status: PRODUCT_STATUSES.ACTIVE,
+        },
+      ]);
     }
-    if (formValues && formValues.isEditing == true) {
-      if (variantList.find((variant) => variant.ui_id == formValues.ui_id)) {
-        setVariantList([
-          ...variantList.map((variant) => {
-            if (variant.ui_id == formValues.ui_id) {
-              return { ...variant, ...formValues };
-            }
-            return variant;
-          }),
-        ]);
-        setSelectedVariant(null);
-      }
-    }
-    return;
+    setSelectedVariant(null);
   };
   const handleAddNewProduct = async () => {
     if (!Number(user?.id)) {
@@ -82,7 +92,7 @@ const ProductAddPage = () => {
 
     const newProduct: productFormRequest = {
       auth_vendor_id: Number(user?.id),
-      variants: variantList,
+      variants: variantList.map(toProductVariantPayload),
       attribute_set_id: newProductInfo.attribute_set_id,
       title: newProductInfo.title || '',
       description: newProductInfo.description || '',
@@ -108,58 +118,45 @@ const ProductAddPage = () => {
     }
     return;
   };
-  const handleEditVariant = (id: number | undefined) => {
-    if (id) {
-      const findVariant: Partial<UiVariant> | null =
-        variantList.find((variant) => variant.id == id || variant.ui_id == id) || null;
-      if (findVariant) {
-        setSelectedVariant({ ...findVariant, isEditing: true });
-        return;
-      }
-    }
-
-    toast.error(UI_TEXT.VARIANT.FALLBACK_EDIT_ERROR);
-    return;
+  const handleEditVariant = (variant: EditableVariant) => {
+    setSelectedVariant(variant);
   };
-  const handleDeleteVariant = (id: number | undefined) => {
-    if (id) {
-      const findVariant: Partial<UiVariant> | null =
-        variantList.find((variant) => variant.id == id || variant.ui_id == id) || null;
-      if (findVariant) {
-        setVariantList([...variantList.filter((variant) => variant.ui_id != id)]);
-        if (selectedVariant?.ui_id == id) setSelectedVariant(null);
-
-        return;
-      }
-    }
-
-    toast.error(UI_TEXT.VARIANT.FALLBACK_EDIT_ERROR);
-    return;
+  const handleDeleteVariant = (variant: EditableVariant) => {
+    setVariantList((currentVariants) =>
+      currentVariants.filter((item) => item.clientId !== variant.clientId),
+    );
+    if (selectedVariant?.clientId === variant.clientId) setSelectedVariant(null);
   };
 
   if (isLoading) return <FullLoader />;
   return (
     <div className="w-full flex flex-col gap-4 my-4">
-      <div className="flex gap-2 justify-between">
-        <span className="text-3xl font-bold">{UI_TEXT.PRODUCT.ADD_TITLE}</span>
-        <Link to={ROUTES.PRODUCT} className="p-2 rounded-md font-semibold hover:underline text-sm">
-          <span className="text-lg">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
+      <div className="flex flex-col-reverse md:flex-row md:justify-between gap-2">
+        <span className="text-lg font-semibold md:text-2xl text-center">
+          {UI_TEXT.PRODUCT.ADD_TITLE}
+        </span>
+        <button
+          type="button"
+          onClick={handleBack}
+          className="inline-flex items-center gap-1 self-end md:block p-2 rounded-md hover:underline hover:cursor-pointer text-xs "
+        >
+          <span className="text-md">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
           {UI_TEXT.PRODUCT.BACK_TO_LISTING}
-        </Link>
+        </button>
       </div>
 
       <div className="w-full flex flex-row gap-2 border-b border-red-300 ">
         <button
           type="button"
           onClick={() => setStep(1)}
-          className={`p-4 hover:cursor-pointer ${step == 1 && 'bg-red-100'}`}
+          className={`text-xs lg:text-md p-4 hover:cursor-pointer ${step == 1 && 'bg-red-100'}`}
         >
           {UI_TEXT.PRODUCT_FORM.BASE_INFO}
         </button>
         <button
           type="button"
           onClick={() => setStep(2)}
-          className={`p-4 hover:cursor-pointer ${step == 2 && 'bg-red-100'} disabled:opacity-20 disabled:bg-none`}
+          className={`text-xs lg:text-md p-4 hover:cursor-pointer ${step == 2 && 'bg-red-100'} disabled:opacity-20 disabled:bg-none`}
           disabled={!secondStepEnable}
         >
           {UI_TEXT.PRODUCT_FORM.VARIANT_INFO}
@@ -171,6 +168,7 @@ const ProductAddPage = () => {
           btnText={UI_TEXT.PRODUCT_FORM.NEXT}
           onSubmit={handleProductBtn}
           updateFormValues={newProductInfo}
+          isEnabled={true}
         />
       )}
       {step === 2 && (

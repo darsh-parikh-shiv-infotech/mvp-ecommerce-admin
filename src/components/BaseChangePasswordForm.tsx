@@ -16,6 +16,7 @@ import { ChangePasswordValidation } from '../utils/validations/ChangePasswordVal
 interface BaseChangePasswordFormProps {
   email: string;
   loading: boolean;
+  resendHandler: () => Promise<boolean>;
   submitHandler: (
     email: string,
     otp: number,
@@ -30,7 +31,12 @@ interface ChangePasswordFormValues {
   confirmNewPassword: string;
 }
 
-const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePasswordFormProps) => {
+const BaseChangePasswordForm = ({
+  email,
+  submitHandler,
+  resendHandler,
+  loading,
+}: BaseChangePasswordFormProps) => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -49,7 +55,10 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
     return () => clearInterval(timer);
   }, [timeLeft]);
   const handleResendOtp = async () => {
-    if (!canResend) return;
+    if (!canResend || loading) return;
+    const wasResent = await resendHandler();
+    if (!wasResent) return;
+
     setTimeLeft(RESEND_OTP_TIME);
     setCanResend(false);
   };
@@ -234,7 +243,8 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
       <div className="w-full text-end">
         {canResend ? (
           <button
-            className="font-medium text-sm text-red-600 hover:border-b"
+            type="button"
+            className="font-medium text-sm text-red-600 hover:border-b hover:cursor-pointer"
             onClick={handleResendOtp}
           >
             {UI_TEXT.AUTH.RESEND_OTP}
@@ -250,13 +260,16 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
 
       <button
         type="submit"
-        className={`rounded-lg bg-linear-to-r from-red-700 to-red-800 p-2 font-bold text-white shadow-rose-400 hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-md ${loading && 'opacity-50'}`}
+        className={`rounded-lg bg-linear-to-r from-red-700 to-red-800 p-2 font-bold text-white shadow-rose-400 hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-md ${loading && 'opacity-50'} hover:cursor-pointer`}
         disabled={loading}
       >
         {UI_TEXT.AUTH.UPDATE_PASSWORD}
       </button>
       <div className="flex justify-center">
-        <Link to={ROUTES.LOGIN} className="font-medium text-sm text-red-600 hover:border-b">
+        <Link
+          to={ROUTES.LOGIN}
+          className="font-medium text-sm text-red-600 hover:border-b hover:cursor-pointer"
+        >
           {UI_TEXT.COMMON.BACK_TO_SIGN_IN}
         </Link>
       </div>

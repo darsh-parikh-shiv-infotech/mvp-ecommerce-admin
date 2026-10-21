@@ -8,7 +8,7 @@ const Spinner = ({ SpinnerTitle = UI_TEXT.COMMON.LOADING }: SpinnerProp) => {
     <div role="status" className="flex flex-col items-center gap-2">
       <svg
         aria-hidden="true"
-        className="w-8 h-8 text-neutral-tertiary animate-spin fill-brand"
+        className="w-5 h-5 md:w-8 md:h-8 text-neutral-tertiary animate-spin fill-brand"
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -22,7 +22,7 @@ const Spinner = ({ SpinnerTitle = UI_TEXT.COMMON.LOADING }: SpinnerProp) => {
           fill="currentFill"
         />
       </svg>
-      <span className="text-lg font-semibold ml-2">{SpinnerTitle}</span>
+      <span className="text-sm md:text-lg font-semibold ml-2">{SpinnerTitle}</span>
     </div>
   );
 };

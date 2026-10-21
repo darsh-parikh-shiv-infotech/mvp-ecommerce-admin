@@ -1,4 +1,4 @@
-import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import axios, { type InternalAxiosRequestConfig } from 'axios';
 
 import { StatusCodes } from 'http-status-codes';
 import { ApiError, getApplicationApiError, getApiResponseMessage } from './apiError';
@@ -8,11 +8,10 @@ import {
   API_ERROR_MESSAGES,
   APP_CONFIG,
   HTTP_HEADERS,
+  ROUTES,
   STORAGE_KEYS,
 } from '../utils/constants/constants';
-import { useAppDispatch } from '../utils/hooks/hooks';
-import { logout } from '../store/slices/auth/authSlice';
-import { useNavigate } from 'react-router-dom';
+import { clearStoredAuthToken } from '../utils/common/authStorage';
 
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_ADMIN_BASE_URL,
@@ -22,6 +21,16 @@ const axiosClient = axios.create({
     [HTTP_HEADERS.ACCEPT]: HTTP_HEADERS.JSON,
   },
 });
+
+const redirectToLogin = (requestUrl?: string) => {
+  if (requestUrl?.includes(API_ENDPOINTS.LOGIN)) return;
+
+  clearStoredAuthToken();
+  // Interceptors run outside React, so use browser navigation instead of React hooks.
+  if (window.location.pathname !== ROUTES.LOGIN) {
+    window.location.replace(ROUTES.LOGIN);
+  }
+};
 
 // Request interceptor
 axiosClient.interceptors.request.use(
@@ -41,6 +50,9 @@ axiosClient.interceptors.response.use(
   (response) => {
     const applicationError = getApplicationApiError(response.data);
     if (applicationError) {
+      if (applicationError.status === StatusCodes.UNAUTHORIZED) {
+        redirectToLogin(response.config.url);
+      }
       return Promise.reject(applicationError);
     }
 
@@ -48,24 +60,15 @@ axiosClient.interceptors.response.use(
   },
 
   (error: unknown) => {
-    if (axios.isAxiosError(error)) {
-      const dispatch = useAppDispatch();
-      const navigate = useNavigate();
-      const axiosError = error as AxiosError<unknown>;
-
+    if (axios.isAxiosError<unknown>(error)) {
+      const axiosError = error;
       const status = axiosError.response?.status;
       const backendMessage = getApiResponseMessage(axiosError.response?.data);
 
       // Request reached the server and received an HTTP error.
       if (status) {
         if (status === StatusCodes.UNAUTHORIZED) {
-          // A 401 can indicate an expired or invalid session.
-          // Avoid automatically logging out on the login endpoint.
-          if (!axiosError.config?.url?.includes(API_ENDPOINTS.LOGIN)) {
-            localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-            dispatch(logout());
-            navigate('/login');
-          }
+          redirectToLogin(axiosError.config?.url);
 
           throw new ApiError(
             backendMessage || API_ERROR_MESSAGES.SESSION_EXPIRED,

@@ -101,7 +101,7 @@ const BaseLoginForm = ({ loading: isLoading, onSubmit }: BaseLoginFormProp) => {
       </div>
       <button
         type="submit"
-        className={`font-bold text-white bg-linear-to-r from-red-700 to-red-800  p-2 rounded-lg hover:-translate-y-0.5 hover:shadow-md hover:bg-red-700 shadow-rose-400 ${isLoading && 'opacity-50'}`}
+        className={`font-bold text-white bg-linear-to-r from-red-700 to-red-800  p-2 rounded-lg hover:-translate-y-0.5 hover:shadow-md hover:bg-red-700 shadow-rose-400 ${isLoading && 'opacity-50'} hover:cursor-pointer`}
         disabled={isLoading}
       >
         {isLoading ? 'Loading...' : 'Sign In'}

@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 import { ATTRIBUTE_VALIDATION_MESSAGES } from '../constants/constants';
 export const VariantFormSchama = Yup.object().shape({
   id: Yup.string().optional(),
-  ui_id: Yup.string().optional(),
+  clientId: Yup.string().optional(),
   title: Yup.string().required(ATTRIBUTE_VALIDATION_MESSAGES.TITLE_REQUIRED),
   available_quantity: Yup.number().required(
     ATTRIBUTE_VALIDATION_MESSAGES.AVAILABLE_QUANTITY_REQUIRED,
@@ -14,5 +14,4 @@ export const VariantFormSchama = Yup.object().shape({
   code: Yup.string().required(ATTRIBUTE_VALIDATION_MESSAGES.CODE_REQUIRED),
   fake_price: Yup.number().required(ATTRIBUTE_VALIDATION_MESSAGES.FAKE_PRICE_REQUIRED),
   price: Yup.number().required(ATTRIBUTE_VALIDATION_MESSAGES.PRICE_REQUIRED),
-  isEditing: Yup.bool().required(),
 });

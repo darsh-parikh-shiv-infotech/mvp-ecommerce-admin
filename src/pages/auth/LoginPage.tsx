@@ -4,20 +4,23 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
 import { checkAuthStatus, loginUser } from '../../store/slices/auth/AuthThunk';
-import { clearAuthError } from '../../store/slices/auth/authSlice';
 import BaseLoginForm from '../../components/BaseLoginForm';
 import BaseAppInfoAuth from '../../components/BaseAppInfoAuth';
 import { AUTH_ERROR_MESSAGES, ROUTES, UI_TEXT } from '../../utils/constants/constants';
+import { RequestStatus } from '../../store/slices/common';
 
 const LoginPage = () => {
-  const { loading, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { requests, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { status } = requests.login;
+  const isLoading = status === RequestStatus.LOADING;
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const submitHandler = async (email: string, password: string) => {
     const result = await dispatch(loginUser({ email, password }));
     if (loginUser.fulfilled.match(result)) {
-      const authStatusResult = await await dispatch(checkAuthStatus());
+      const authStatusResult = await dispatch(checkAuthStatus());
       if (checkAuthStatus.fulfilled.match(authStatusResult)) {
         return navigate(ROUTES.HOME);
       } else if (checkAuthStatus.rejected.match(authStatusResult)) {
@@ -26,14 +29,12 @@ const LoginPage = () => {
             authStatusResult.error.message ??
             AUTH_ERROR_MESSAGES.LOGIN_FAILED,
         );
-        dispatch(clearAuthError());
       }
     }
     if (loginUser.rejected.match(result)) {
       toast.error(
         result.payload?.message ?? result.error.message ?? AUTH_ERROR_MESSAGES.LOGIN_FAILED,
       );
-      dispatch(clearAuthError());
     }
 
     return;
@@ -62,7 +63,7 @@ const LoginPage = () => {
             </div>
 
             {/* Login Form */}
-            <BaseLoginForm loading={loading} onSubmit={submitHandler} />
+            <BaseLoginForm loading={isLoading} onSubmit={submitHandler} />
           </div>
         </div>
 

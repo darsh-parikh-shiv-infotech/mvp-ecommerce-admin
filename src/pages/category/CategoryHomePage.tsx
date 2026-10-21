@@ -6,13 +6,26 @@ import Pagination from '../../components/common/Pagination';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import moment from 'moment';
-import { APP_CONFIG, LIST_QUERY_DEFAULTS, ROUTES, UI_TEXT } from '../../utils/constants/constants';
+import {
+  APP_CONFIG,
+  LIST_QUERY_DEFAULTS,
+  PRODUCT_STATE_ERROR_MESSAGES,
+  ROUTES,
+  UI_TEXT,
+} from '../../utils/constants/constants';
 import { FaSortUp, FaSortDown } from 'react-icons/fa6';
 import ReusableModal from '../../components/common/ReusableModal';
+import { RequestStatus } from '../../store/slices/common';
 
 const CategoryHomePage = () => {
-  const { data, currentPage, numberOfRows, pageSize, totalItems, totalPages, isLoading, error } =
+  const { data, currentPage, numberOfRows, pageSize, totalItems, totalPages, requests } =
     useAppSelector((state) => state.category);
+  const { status: statusFetchAll, error: errorFetchAll } = requests.fetchAll;
+  const { status: statusDelete } = requests.delete;
+
+  const isLoading =
+    statusFetchAll === RequestStatus.LOADING || statusDelete === RequestStatus.LOADING;
+
   const dispatch = useAppDispatch();
   const [params, setParams] = useSearchParams();
   const location = useLocation();
@@ -143,119 +156,135 @@ const CategoryHomePage = () => {
 
   return (
     <>
-      <span className="inline-block text-3xl font-bold my-2">{UI_TEXT.CATEGORY.VIEW_ALL}</span>
+      <span className="inline-block text-lg md:text-3xl font-bold my-2">
+        {UI_TEXT.CATEGORY.VIEW_ALL}
+      </span>
 
-      <div className="relative overflow-x-auto mt-5 bg-red-50 shadow-xs rounded-base border border-default">
-        <div className="flex justify-end gap-2 my-2 mx-2">
+      <div className="bg-red-50 shadow-xs rounded-base border border-default">
+        <div className="flex md:justify-end items-center gap-2 my-2 mx-2">
           <input
             type="search"
             aria-label="Search products"
             placeholder="Search..."
-            className="text-sm md:text-md h-10 px-4 py-2 rounded-md border border-black/30 focus:outline-none focus:ring-1 focus:ring-red-400 focus:shadow-md"
+            className="text-2xs md:text-md h-10 px-4 py-2 rounded-md border border-black/30 focus:outline-none focus:ring-1 focus:ring-red-400 focus:shadow-md"
             value={searchInput}
             onChange={(event) => setSearchInput(event.target.value)}
           />
 
           <Link
             to={ROUTES.CATEGORY_ADD}
-            className="bg-blue-200 p-2 rounded-md font-semibold text-sm"
+            className="bg-blue-200 text-center p-2 rounded-md font-semibold text-[9px] md:text-sm"
           >
             {UI_TEXT.CATEGORY.ADD}
           </Link>
         </div>
-        <table className="w-full text-sm text-left rtl:text-right text-body">
-          <thead className="text-sm text-body bg-red-100 border-b border-default-medium">
-            <tr>
-              <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => handleSort('id')}>
-                <div className="flex flex-row gap-3 ">
-                  {UI_TEXT.CATEGORY.ID}
-                  {renderSortIcon('id')}
-                </div>
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 cursor-pointer"
-                onClick={() => handleSort('name')}
-              >
-                <div className="flex flex-row gap-3 ">
-                  {UI_TEXT.CATEGORY.TABLE_NAME}
-                  {renderSortIcon('name')}
-                </div>
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 cursor-pointer"
-                onClick={() => handleSort('createdAt')}
-              >
-                <div className="flex flex-row gap-3">
-                  {UI_TEXT.COMMON.CREATED_ON}
-                  {renderSortIcon('createdAt')}
-                </div>
-              </th>
-              <th scope="col" className="px-6 py-3">
-                {UI_TEXT.COMMON.ACTION}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading && (
+        <div className="relative overflow-x-auto mt-5 ">
+          <table className="w-full text-2xs md:text-sm text-left rtl:text-right text-body">
+            <thead className="text-2xs md:text-sm text-body bg-red-100 border-b border-default-medium">
               <tr>
-                <td colSpan={4}>
-                  <Spinner />
-                </td>
+                <th
+                  scope="col"
+                  className="px-6 py-3 cursor-pointer"
+                  onClick={() => handleSort('id')}
+                >
+                  <div className="flex flex-row gap-3 items-center text-center ">
+                    {UI_TEXT.CATEGORY.ID}
+                    {renderSortIcon('id')}
+                  </div>
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 cursor-pointer"
+                  onClick={() => handleSort('name')}
+                >
+                  <div className="flex flex-row gap-3 items-center text-center ">
+                    {UI_TEXT.CATEGORY.TABLE_NAME}
+                    {renderSortIcon('name')}
+                  </div>
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 cursor-pointer"
+                  onClick={() => handleSort('createdAt')}
+                >
+                  <div className="flex flex-row gap-3 items-center text-center">
+                    {UI_TEXT.COMMON.CREATED_ON}
+                    {renderSortIcon('createdAt')}
+                  </div>
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  {UI_TEXT.COMMON.ACTION}
+                </th>
               </tr>
-            )}
-            {!isLoading && error && (
-              <tr>
-                <td colSpan={4} className="font-semibold text-center p-2">
-                  {error}
-                </td>
-              </tr>
-            )}
-            {!isLoading &&
-              data &&
-              data.map((row, index) => {
-                return (
-                  <tr
-                    key={row.id}
-                    className={`${index % 2 == 0 ? 'bg-neutral-primary-soft' : 'bg-red-50'} border-b border-default hover:bg-neutral-secondary-medium`}
-                  >
-                    <th
-                      scope="row"
-                      className="px-6 py-4 font-medium text-heading whitespace-nowrap"
+            </thead>
+            <tbody>
+              {isLoading && (
+                <tr>
+                  <td colSpan={4}>
+                    <Spinner />
+                  </td>
+                </tr>
+              )}
+              {!isLoading && errorFetchAll && (
+                <tr>
+                  <td colSpan={4} className="font-semibold text-center p-2">
+                    {errorFetchAll}
+                  </td>
+                </tr>
+              )}
+              {!isLoading && !errorFetchAll && data.length == 0 && (
+                <tr>
+                  <td colSpan={4} className="font-semibold text-center p-2">
+                    {PRODUCT_STATE_ERROR_MESSAGES.NO_DATA_FOUND}
+                  </td>
+                </tr>
+              )}
+              {!isLoading &&
+                data.length > 0 &&
+                data &&
+                data.map((row, index) => {
+                  return (
+                    <tr
+                      key={row.id}
+                      className={`${index % 2 == 0 ? 'bg-neutral-primary-soft' : 'bg-red-50'} border-b border-default hover:bg-neutral-secondary-medium`}
                     >
-                      {row.id}
-                    </th>
-                    <td className="px-6 py-4">{row.name}</td>
-                    <td className="px-6 py-4">
-                      {moment(new Date(row.createdAt).getTime())
-                        .utc()
-                        .format(APP_CONFIG.DATE_FORMAT)}
-                    </td>
-                    <td className="flex flex-row gap-2 px-6 py-4">
-                      <button
-                        type="button"
-                        onClick={() => editCategory(row.id.toString())}
-                        className="font-medium text-fg-brand hover:underline hover:cursor-pointer"
+                      <th
+                        scope="row"
+                        className="px-6 py-4 font-medium text-heading whitespace-nowrap"
                       >
-                        {UI_TEXT.PRODUCT.EDIT}
-                      </button>
-                      <button
-                        className="font-medium text-red-600 hover:underline hover:cursor-pointer"
-                        onClick={() => {
-                          setIsDeleting(row.id);
-                          setShowDeleteModal(true);
-                        }}
-                      >
-                        {UI_TEXT.CATEGORY.DELETE}
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-          </tbody>
-        </table>
-        {isLoading == false && error == null && (
+                        {row.id}
+                      </th>
+                      <td className="px-6 py-4">{row.name}</td>
+                      <td className="px-6 py-4">
+                        {moment(new Date(row.createdAt).getTime())
+                          .utc()
+                          .format(APP_CONFIG.DATE_FORMAT)}
+                      </td>
+                      <td className="flex flex-row gap-2 px-6 py-4">
+                        <button
+                          type="button"
+                          onClick={() => editCategory(row.id.toString())}
+                          className="font-medium text-fg-brand hover:underline hover:cursor-pointer"
+                        >
+                          {UI_TEXT.PRODUCT.EDIT}
+                        </button>
+                        <button
+                          className="font-medium text-red-600 hover:underline hover:cursor-pointer"
+                          onClick={() => {
+                            setIsDeleting(row.id);
+                            setShowDeleteModal(true);
+                          }}
+                        >
+                          {UI_TEXT.CATEGORY.DELETE}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+        </div>
+        {isLoading == false && errorFetchAll == null && data.length > 0 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -276,7 +305,9 @@ const CategoryHomePage = () => {
         }}
       >
         <div className="w-full flex flex-col my-5 gap-4 items-center">
-          <span className="text-2xl font-semibold">Are You Sure You Want To Delete?</span>
+          <span className="text-md md:text-2xl text-center font-semibold">
+            Are You Sure You Want To Delete?
+          </span>
 
           <div className="w-full flex my-2 justify-center gap-2">
             <button
@@ -286,7 +317,7 @@ const CategoryHomePage = () => {
                 setIsDeleting(null);
                 setShowDeleteModal(false);
               }}
-              className="w-fit bg-red-600 text-white px-3 py-2 rounded-lg hover:cursor-pointer hover:opacity-70"
+              className="w-fit text-xs md:text-md bg-red-600 text-white px-3 py-2 rounded-lg hover:cursor-pointer hover:opacity-70"
             >
               Delete
             </button>
@@ -296,7 +327,7 @@ const CategoryHomePage = () => {
                 setIsDeleting(null);
                 return;
               }}
-              className="w-fit bg-blue-600 text-white px-3 py-2 rounded-lg hover:cursor-pointer hover:opacity-70"
+              className="w-fit text-xs md:text-md bg-blue-600 text-white px-3 py-2 rounded-lg hover:cursor-pointer hover:opacity-70"
             >
               Cancel
             </button>

@@ -1,7 +1,7 @@
 import { useFormik } from 'formik';
 import { ProductFormValidationSchema } from '../utils/validations/ProductFormValidation';
 import FormField from './common/FormField';
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
+import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { initFlowbite } from 'flowbite';
 import { useAppDispatch, useAppSelector } from '../utils/hooks/hooks';
 import { imageUpload, listAttribute } from '../store/slices/product/productThunk';
@@ -55,27 +55,26 @@ const BaseProductForm = ({
       onSubmit(values);
     },
   });
-  const dispatch = useAppDispatch();
 
+  const dispatch = useAppDispatch();
+  const fetchAttributes = useCallback(async () => {
+    const result = await dispatch(listAttribute());
+    if (listAttribute.rejected.match(result)) {
+      toast.error(
+        result.error?.message || result.payload?.message || UI_TEXT.PRODUCT.FETCH_ATTRIBUTES_FAILED,
+      );
+    }
+  }, [dispatch]);
+  useEffect(() => {
+    if (attributeSetData.length == 0) fetchAttributes();
+  }, [fetchAttributes]);
   useEffect(() => {
     initFlowbite();
   }, []);
-  useEffect(() => {
-    async function fetchAttributes() {
-      const result = await dispatch(listAttribute());
-      if (listAttribute.rejected.match(result)) {
-        toast.error(
-          result.error?.message ||
-            result.payload?.message ||
-            UI_TEXT.PRODUCT.FETCH_ATTRIBUTES_FAILED,
-        );
-      }
-    }
-    fetchAttributes();
-  }, [dispatch]);
+
   useEffect(() => {
     if (setIsEnabled) setIsEnabled(!formik.dirty);
-  }, [formik.dirty]);
+  }, [formik.dirty, setIsEnabled]);
 
   const titleError =
     formik.touched.title || formik.submitCount > 0 ? formik.errors.title : undefined;
@@ -223,7 +222,7 @@ const BaseProductForm = ({
             {UI_TEXT.PRODUCT.UPLOAD_IMAGE}
             <span className="text-red-600">{UI_TEXT.COMMON.REQUIRED_MARKER}</span>
           </label>
-          <div className="w-full grid grid-cols-2">
+          <div className="w-full grid grid-cols-1 md:grid-cols-2">
             <div className="flex items-center justify-center">
               <label
                 htmlFor="dropzone-file"

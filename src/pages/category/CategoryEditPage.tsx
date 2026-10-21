@@ -1,17 +1,13 @@
-import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
 import { useEffect } from 'react';
 import { editCategory, viewSingleCategory } from '../../store/slices/category/categoryThunk';
 import { toast } from 'react-toastify';
 import BaseCategoryForm from '../../components/BaseCategoryForm';
 import Spinner from '../../components/common/Spinner';
-import {
-  CATEGORY_STATE_ERROR_MESSAGES,
-  ROUTES,
-  UI_TEXT,
-  VALIDATION_MESSAGES,
-} from '../../utils/constants/constants';
+import { ROUTES, UI_TEXT, VALIDATION_MESSAGES } from '../../utils/constants/constants';
 import FullLoader from '../../components/common/FullLoader';
+import { RequestStatus } from '../../store/slices/common';
 
 type NavigationState = {
   from?: string;
@@ -26,10 +22,16 @@ const CategoryEditPage = () => {
     if (state?.from) {
       navigate(state.from);
     } else {
-      navigate(ROUTES.PRODUCT);
+      navigate(ROUTES.CATEGORY);
     }
   };
-  const { isLoading, selectedCategory, error } = useAppSelector((state) => state.category);
+  const { selectedCategory, requests } = useAppSelector((state) => state.category);
+  const { status: statusFetchSingle } = requests.fetchSingle;
+  const { status: statusUpdate } = requests.update;
+
+  const isLoading = statusFetchSingle === RequestStatus.LOADING;
+  const formLoading = statusUpdate === RequestStatus.LOADING;
+
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -37,16 +39,16 @@ const CategoryEditPage = () => {
       const result = await dispatch(viewSingleCategory({ id }));
       if (viewSingleCategory.rejected.match(result)) {
         toast.error(result.payload?.message || UI_TEXT.CATEGORY.FETCH_FAILED);
-        return navigate(ROUTES.CATEGORY);
+        navigate(ROUTES.CATEGORY);
       }
     }
     if (id && !isNaN(Number(id))) {
       fetchData(Number(id));
     } else {
       toast.error(VALIDATION_MESSAGES.INVALID_REQUEST_AT_LOAD);
-      navigate('/category');
+      navigate(ROUTES.CATEGORY);
     }
-  }, [id]);
+  }, [dispatch, id, navigate]);
 
   const editFormSubmitHandler = async (name: string) => {
     const result = await dispatch(editCategory({ id: Number(id), name }));
@@ -64,42 +66,28 @@ const CategoryEditPage = () => {
     return <Navigate to={ROUTES.CATEGORY} />;
   }
   if (isLoading) return <FullLoader />;
-  if (!selectedCategory)
-    return (
-      <div className="w-full min-h-[30vw] overflow-hidden flex items-center">
-        <div className="w-full max-w-5xl mx-auto">
-          <div className="flex flex-col gap-4 items-center text-center text-2xl font-semibold">
-            {error || CATEGORY_STATE_ERROR_MESSAGES.FETCH_FAILED}
-            <Link
-              to={'/product'}
-              className="text-sm w-fit bg-blue-300 rounded-md hover:opacity-70 hover:cursor-pointer p-3"
-            >
-              Return To Product Home Page
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
 
   return (
     <div className="w-full max-w-screen-sm mx-auto my-9">
       <div className="flex flex-col gap-5">
-        <div className="flex gap-2 justify-between">
-          <span className="text-2xl">{UI_TEXT.CATEGORY.EDIT_FORM_TITLE}</span>
+        <div className="flex flex-col-reverse md:flex-row md:justify-between gap-2">
+          <span className="text-lg font-semibold md:text-2xl text-center">
+            {UI_TEXT.CATEGORY.EDIT_FORM_TITLE}
+          </span>
 
           <button
             type="button"
             onClick={handleBack}
-            className="p-2 rounded-md font-semibold hover:underline hover:cursor-pointer text-sm"
+            className="inline-flex items-center gap-1 self-end md:block p-2 rounded-md hover:underline hover:cursor-pointer text-xs "
           >
-            <span className="text-lg">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
+            <span className="text-md">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
             {UI_TEXT.PRODUCT.BACK_TO_LISTING}
           </button>
         </div>
         {isLoading && <Spinner />}
         {!isLoading && selectedCategory && (
           <BaseCategoryForm
-            loading={isLoading}
+            loading={formLoading}
             onSubmit={editFormSubmitHandler}
             updateValue={selectedCategory}
             submitBtnText={UI_TEXT.CATEGORY.EDIT}

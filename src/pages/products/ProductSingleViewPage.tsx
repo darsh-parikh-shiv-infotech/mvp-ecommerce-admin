@@ -1,11 +1,18 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
 import { toast } from 'react-toastify';
 
 import { viewProduct } from '../../store/slices/product/productThunk';
-import { API_ENDPOINTS, APP_CONFIG, ROUTES, UI_TEXT } from '../../utils/constants/constants';
+import {
+  API_ENDPOINTS,
+  APP_CONFIG,
+  ROUTES,
+  UI_TEXT,
+  VALIDATION_MESSAGES,
+} from '../../utils/constants/constants';
 import type { product } from '../../store/slices/product/productSlice';
+import { RequestStatus } from '../../store/slices/common';
 
 import Spinner from '../../components/common/Spinner';
 import moment from 'moment';
@@ -15,7 +22,7 @@ type NavigationState = {
   from?: string;
 };
 
-const ViewProductPage = () => {
+const ProductSingleViewPage = () => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,32 +35,46 @@ const ViewProductPage = () => {
     }
   };
 
-  const { selectedProduct, isLoading, error } = useAppSelector((state) => state.product);
+  const { selectedProduct, requests } = useAppSelector((state) => state.product);
+  const { status: fetchSingleStatus, error } = requests.fetchSingle;
+  const isLoading = fetchSingleStatus === RequestStatus.LOADING;
+
   const dispatch = useAppDispatch();
-  async function fetchData(id: number) {
-    if (id) {
-      const result = await dispatch(viewProduct({ id }));
-      if (viewProduct.rejected.match(result)) {
-        toast.error(result.payload?.message || UI_TEXT.PRODUCT.FETCH_SINGLE_FAILED);
+  const fetchData = useCallback(
+    async (id: number) => {
+      if (id) {
+        const result = await dispatch(viewProduct({ id }));
+        if (viewProduct.rejected.match(result)) {
+          toast.error(result.payload?.message || UI_TEXT.PRODUCT.FETCH_SINGLE_FAILED);
+          navigate(ROUTES.PRODUCT);
+        }
       }
-    }
-    return;
-  }
+    },
+    [dispatch],
+  );
 
   useEffect(() => {
-    fetchData(Number(id));
-  }, [id]);
+    if (id && !isNaN(Number(id))) {
+      fetchData(Number(id));
+    } else {
+      toast.error(VALIDATION_MESSAGES.INVALID_REQUEST_AT_LOAD);
+      navigate(ROUTES.PRODUCT);
+    }
+  }, [fetchData, id]);
 
   return (
-    <div className="mt-2 mx-5">
-      <div className="flex gap-2 justify-between">
-        <span className="text-3xl font-bold">{UI_TEXT.PRODUCT.VIEW_TITLE}</span>
+    <div className="mt-7">
+      <div className="flex flex-col-reverse md:flex-row md:justify-between gap-2">
+        <span className="text-lg font-semibold md:text-2xl text-center">
+          {UI_TEXT.PRODUCT.VIEW_TITLE}
+        </span>
+
         <button
           type="button"
           onClick={handleBack}
-          className="p-2 rounded-md font-semibold hover:underline hover:cursor-pointer text-sm"
+          className="inline-flex items-center gap-1 self-end md:block p-2 rounded-md hover:underline hover:cursor-pointer text-xs "
         >
-          <span className="text-lg">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
+          <span className="text-md">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
           {UI_TEXT.PRODUCT.BACK_TO_LISTING}
         </button>
       </div>
@@ -72,7 +93,7 @@ interface ProductTableProp {
 }
 const ProductTable = ({ product }: ProductTableProp) => {
   return (
-    <div className="w-full grid grid-cols-1 md:grid-cols-[30vw_50vw] gap-7 mt-5">
+    <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[30vw_50vw] gap-7 mt-5">
       <div className="w-full h-full flex items-center justify-center">
         <img
           className="w-full h-full shrink-0"
@@ -85,8 +106,8 @@ const ProductTable = ({ product }: ProductTableProp) => {
         />
       </div>
       <div className="w-full my-2">
-        <table className="w-full text-sm text-body">
-          <caption className="text-start font-bold underline text-lg mb-2">
+        <table className="w-full text-2xs md:text-sm text-body">
+          <caption className="text-start font-bold underline text-sm md:text-lg mb-2">
             {UI_TEXT.PRODUCT.DETAILS}
           </caption>
           <tbody>
@@ -123,4 +144,4 @@ const ProductTable = ({ product }: ProductTableProp) => {
   );
 };
 
-export default ViewProductPage;
+export default ProductSingleViewPage;
