@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
 import { toast } from 'react-toastify';
@@ -30,19 +30,21 @@ const ViewProductPage = () => {
 
   const { selectedProduct, isLoading, error } = useAppSelector((state) => state.product);
   const dispatch = useAppDispatch();
-  async function fetchData(id: number) {
-    if (id) {
-      const result = await dispatch(viewProduct({ id }));
-      if (viewProduct.rejected.match(result)) {
-        toast.error(result.payload?.message || UI_TEXT.PRODUCT.FETCH_SINGLE_FAILED);
+  const fetchData = useCallback(
+    async (id: number) => {
+      if (id) {
+        const result = await dispatch(viewProduct({ id }));
+        if (viewProduct.rejected.match(result)) {
+          toast.error(result.payload?.message || UI_TEXT.PRODUCT.FETCH_SINGLE_FAILED);
+        }
       }
-    }
-    return;
-  }
+    },
+    [dispatch],
+  );
 
   useEffect(() => {
     fetchData(Number(id));
-  }, [id]);
+  }, [fetchData, id]);
 
   return (
     <div className="mt-2 mx-5">

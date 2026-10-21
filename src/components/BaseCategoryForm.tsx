@@ -53,7 +53,7 @@ const BaseCategoryForm = ({
         />
 
         {nameError ? (
-          <span id="nameError-error" role="alert" className="text-sm font-normal text-red-700">
+          <span id="name-error" role="alert" className="text-sm font-normal text-red-700">
             {nameError}
           </span>
         ) : null}

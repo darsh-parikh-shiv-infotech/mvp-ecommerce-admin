@@ -5,13 +5,15 @@ import BaseProductForm, {
   type ProductFormValues,
 } from '../../components/BaseProductForm';
 import BaseVariantForm from '../../components/BaseVariantForm';
-import type { UiVariant } from '../../store/slices/product/productSlice';
+import type { VariantFormValues } from '../../components/BaseVariantForm';
+import type { EditableVariant } from '../../store/slices/product/productSlice';
 import BaseVariantTable from '../../components/BaseVariantTable';
 import { PRODUCT_STATUSES, ROUTES, UI_TEXT } from '../../utils/constants/constants';
 import { toast } from 'react-toastify';
 import { addProduct, type productFormRequest } from '../../store/slices/product/productThunk';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks';
 import FullLoader from '../../components/common/FullLoader';
+import { createVariantClientId, toProductVariantPayload } from '../../utils/productVariants';
 
 const ProductAddPage = () => {
   const [step, setStep] = useState<1 | 2>(1);
@@ -21,44 +23,32 @@ const ProductAddPage = () => {
   const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
   const { isLoading } = useAppSelector((state) => state.product);
-  const [variantList, setVariantList] = useState<Partial<UiVariant>[]>([]);
-  const [selectedVariant, setSelectedVariant] = useState<Partial<UiVariant> | null>(null);
+  const [variantList, setVariantList] = useState<EditableVariant[]>([]);
+  const [selectedVariant, setSelectedVariant] = useState<EditableVariant | null>(null);
 
   const handleProductBtn = (formValues: ProductFormValues) => {
     setNewProductInfo({ ...formValues });
     setSecondStepEnable(true);
     setStep(2);
   };
-  const handleVariantFormBtn = (formValues: Partial<UiVariant | null>) => {
-    if (formValues && formValues.isEditing == false) {
-      const newVariant: Partial<UiVariant> = {
-        ui_id: new Date().getTime(),
-        title: formValues.title,
-        fake_price: formValues.fake_price,
-        price: formValues.price,
-        on_hand_quantity: formValues.on_hand_quantity,
-        available_quantity: formValues.available_quantity,
-        code: formValues.code,
-        product_variant_image: formValues.product_variant_image,
-        status: PRODUCT_STATUSES.ACTIVE,
-      };
-      setVariantList([...variantList, newVariant]);
-      setSelectedVariant(null);
+  const handleVariantFormBtn = (formValues: VariantFormValues) => {
+    if (formValues.clientId) {
+      setVariantList((currentVariants) =>
+        currentVariants.map((variant) =>
+          variant.clientId === formValues.clientId ? { ...variant, ...formValues } : variant,
+        ),
+      );
+    } else {
+      setVariantList((currentVariants) => [
+        ...currentVariants,
+        {
+          ...formValues,
+          clientId: createVariantClientId(),
+          status: PRODUCT_STATUSES.ACTIVE,
+        },
+      ]);
     }
-    if (formValues && formValues.isEditing == true) {
-      if (variantList.find((variant) => variant.ui_id == formValues.ui_id)) {
-        setVariantList([
-          ...variantList.map((variant) => {
-            if (variant.ui_id == formValues.ui_id) {
-              return { ...variant, ...formValues };
-            }
-            return variant;
-          }),
-        ]);
-        setSelectedVariant(null);
-      }
-    }
-    return;
+    setSelectedVariant(null);
   };
   const handleAddNewProduct = async () => {
     if (!Number(user?.id)) {
@@ -82,7 +72,7 @@ const ProductAddPage = () => {
 
     const newProduct: productFormRequest = {
       auth_vendor_id: Number(user?.id),
-      variants: variantList,
+      variants: variantList.map(toProductVariantPayload),
       attribute_set_id: newProductInfo.attribute_set_id,
       title: newProductInfo.title || '',
       description: newProductInfo.description || '',
@@ -108,33 +98,14 @@ const ProductAddPage = () => {
     }
     return;
   };
-  const handleEditVariant = (id: number | undefined) => {
-    if (id) {
-      const findVariant: Partial<UiVariant> | null =
-        variantList.find((variant) => variant.id == id || variant.ui_id == id) || null;
-      if (findVariant) {
-        setSelectedVariant({ ...findVariant, isEditing: true });
-        return;
-      }
-    }
-
-    toast.error(UI_TEXT.VARIANT.FALLBACK_EDIT_ERROR);
-    return;
+  const handleEditVariant = (variant: EditableVariant) => {
+    setSelectedVariant(variant);
   };
-  const handleDeleteVariant = (id: number | undefined) => {
-    if (id) {
-      const findVariant: Partial<UiVariant> | null =
-        variantList.find((variant) => variant.id == id || variant.ui_id == id) || null;
-      if (findVariant) {
-        setVariantList([...variantList.filter((variant) => variant.ui_id != id)]);
-        if (selectedVariant?.ui_id == id) setSelectedVariant(null);
-
-        return;
-      }
-    }
-
-    toast.error(UI_TEXT.VARIANT.FALLBACK_EDIT_ERROR);
-    return;
+  const handleDeleteVariant = (variant: EditableVariant) => {
+    setVariantList((currentVariants) =>
+      currentVariants.filter((item) => item.clientId !== variant.clientId),
+    );
+    if (selectedVariant?.clientId === variant.clientId) setSelectedVariant(null);
   };
 
   if (isLoading) return <FullLoader />;

@@ -12,7 +12,7 @@ const CategoryAddPage = () => {
   const addFormSubmitHandler = async (name: string) => {
     const result = await dispatch(addCategory({ name }));
     if (addCategory.rejected.match(result)) {
-      toast.error(result.payload?.message || UI_TEXT.CATEGORY.DELETE_FAILED);
+      toast.error(result.payload?.message || UI_TEXT.CATEGORY.ADD_FAILED);
     }
     if (addCategory.fulfilled.match(result)) {
       toast.success(result.payload.message || UI_TEXT.CATEGORY.ADDED);

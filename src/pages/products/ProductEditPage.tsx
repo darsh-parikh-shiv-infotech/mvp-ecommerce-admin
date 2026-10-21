@@ -24,7 +24,13 @@ import BaseProductForm, {
 } from '../../components/BaseProductForm';
 import BaseVariantForm from '../../components/BaseVariantForm';
 import BaseVariantTable from '../../components/BaseVariantTable';
-import type { UiVariant } from '../../store/slices/product/productSlice';
+import type { EditableVariant } from '../../store/slices/product/productSlice';
+import type { VariantFormValues } from '../../components/BaseVariantForm';
+import {
+  createVariantClientId,
+  toEditableVariants,
+  toProductVariantPayload,
+} from '../../utils/productVariants';
 
 type NavigationState = {
   from?: string;
@@ -48,8 +54,8 @@ function ProductEditPage() {
   const [newUpdatedProductInfo, setNewUpdatedProductInfo] = useState<newProductInfoProp>(null);
   const { user } = useAppSelector((state) => state.auth);
   const { selectedProduct, isLoading, error } = useAppSelector((state) => state.product);
-  const [variantList, setVariantList] = useState<Partial<UiVariant>[]>([]);
-  const [selectedVariant, setSelectedVariant] = useState<Partial<UiVariant> | null>(null);
+  const [variantList, setVariantList] = useState<EditableVariant[]>([]);
+  const [selectedVariant, setSelectedVariant] = useState<EditableVariant | null>(null);
 
   const dispatch = useAppDispatch();
 
@@ -57,76 +63,52 @@ function ProductEditPage() {
     setNewUpdatedProductInfo({ ...formValues });
     setStep(2);
   };
-  const handleEditVariant = (id: number | undefined) => {
-    if (id) {
-      const findVariant: Partial<UiVariant> | null =
-        variantList.find((variant) => variant.id == id || variant.ui_id == id) || null;
-      if (findVariant) {
-        setSelectedVariant({ ...findVariant, isEditing: true });
-        return;
-      }
+  const handleEditVariant = (variant: EditableVariant) => {
+    setSelectedVariant(variant);
+  };
+  const handleVariantFormBtn = (formValues: VariantFormValues) => {
+    if (formValues.clientId) {
+      setVariantList((currentVariants) =>
+        currentVariants.map((variant) =>
+          variant.clientId === formValues.clientId ? { ...variant, ...formValues } : variant,
+        ),
+      );
+    } else {
+      setVariantList((currentVariants) => [
+        ...currentVariants,
+        {
+          ...formValues,
+          clientId: createVariantClientId(),
+          status: PRODUCT_STATUSES.ACTIVE,
+        },
+      ]);
+    }
+    setSelectedVariant(null);
+  };
+  const handleDeleteVariant = async (variant: EditableVariant) => {
+    if (variant.id === undefined) {
+      setVariantList((currentVariants) =>
+        currentVariants.filter((item) => item.clientId !== variant.clientId),
+      );
+      if (selectedVariant?.clientId === variant.clientId) setSelectedVariant(null);
+      return;
     }
 
-    toast.error(UI_TEXT.VARIANT.FALLBACK_EDIT_ERROR);
-    return;
-  };
-  const handleVariantFormBtn = (formValues: Partial<UiVariant | null>) => {
-    if (formValues && formValues.isEditing == false) {
-      const newVariant: Partial<UiVariant> = {
-        ui_id: new Date().getTime(),
-        title: formValues.title,
-        fake_price: formValues.fake_price,
-        price: formValues.price,
-        on_hand_quantity: formValues.on_hand_quantity,
-        available_quantity: formValues.available_quantity,
-        code: formValues.code,
-        product_variant_image: formValues.product_variant_image,
-        status: PRODUCT_STATUSES.ACTIVE,
-      };
-      setVariantList([...variantList, newVariant]);
-      setSelectedVariant(null);
-    }
-    if (formValues && formValues.isEditing == true) {
-      const matchesVariant = (variant: Partial<UiVariant>) =>
-        formValues.id !== undefined
-          ? variant.id === formValues.id
-          : variant.ui_id === formValues.ui_id;
-      const variantExists = variantList.some(matchesVariant);
-      if (variantExists) {
-        setVariantList(
-          variantList.map((variant) =>
-            matchesVariant(variant) ? { ...variant, ...formValues } : variant,
-          ),
-        );
-        setSelectedVariant(null);
-      }
-    }
-    return;
-  };
-  const handleDeleteVariant = async (variant_id: number | undefined) => {
-    if (variant_id) {
+    if (variant.id !== undefined) {
       const result = await dispatch(
-        deleteVariant({ product_id: Number(id), variant_id: variant_id }),
+        deleteVariant({ product_id: Number(id), variant_id: variant.id }),
       );
       if (deleteVariant.rejected.match(result)) {
         toast.error(result.payload?.message || API_ERROR_MESSAGES.UNEXPECTED);
         return;
       }
       if (deleteVariant.fulfilled.match(result)) {
-        const findVariant: Partial<UiVariant> | null =
-          variantList.find((variant) => variant.id == variant_id) || null;
-        if (findVariant) {
-          setVariantList([...variantList.filter((variant) => variant.id != variant_id)]);
-          if (selectedVariant?.id == variant_id) setSelectedVariant(null);
-          return;
-        }
-        toast.error('Error While Updating Ui');
-        return;
+        setVariantList((currentVariants) =>
+          currentVariants.filter((item) => item.clientId !== variant.clientId),
+        );
+        if (selectedVariant?.clientId === variant.clientId) setSelectedVariant(null);
       }
     }
-
-    toast.error(UI_TEXT.VARIANT.FALLBACK_EDIT_ERROR);
-    return;
   };
   const handleEditingProduct = async () => {
     if (!Number(user?.id)) {
@@ -150,7 +132,7 @@ function ProductEditPage() {
 
     const newProduct: updateProductFormRequest = {
       auth_vendor_id: Number(user?.id),
-      variants: variantList,
+      variants: variantList.map(toProductVariantPayload),
       id: Number(id),
       attribute_set_id: newUpdatedProductInfo.attribute_set_id,
       title: newUpdatedProductInfo.title || '',
@@ -186,20 +168,16 @@ function ProductEditPage() {
           toast.error(result.payload?.message || UI_TEXT.PRODUCT.FETCH_SINGLE_FAILED);
         } else if (viewProduct.fulfilled.match(result)) {
           const product = result.payload.data;
-          const variants =
-            product?.variants?.map((variant) => {
-              return {
-                ...variant,
-                price: Number(variant.price) || 0,
-                fake_price: Number(variant.fake_price) || 0,
-              };
-            }) || [];
+          const variants = toEditableVariants(product?.variants).map((variant) => ({
+            ...variant,
+            price: Number(variant.price) || 0,
+            fake_price: Number(variant.fake_price) || 0,
+          }));
           setNewUpdatedProductInfo({
             ...product,
-            attribute_set_id:
-              selectedProduct?.attribute_set?.id || APP_CONFIG.DEFAULT_ATTRIBUTE_SET_ID,
+            attribute_set_id: product?.attribute_set?.id || APP_CONFIG.DEFAULT_ATTRIBUTE_SET_ID,
           });
-          setVariantList(variants || []);
+          setVariantList(variants);
         }
       }
       return;
@@ -210,10 +188,10 @@ function ProductEditPage() {
       toast.error(VALIDATION_MESSAGES.INVALID_REQUEST_AT_LOAD);
       navigate('/product');
     }
-  }, [id]);
+  }, [dispatch, id, navigate]);
 
   if (!id) {
-    return <Navigate to={ROUTES.CATEGORY} />;
+    return <Navigate to={ROUTES.PRODUCT} />;
   }
   if (isLoading) return <FullLoader />;
   if (!selectedProduct)

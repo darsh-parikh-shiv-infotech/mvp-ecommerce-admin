@@ -30,7 +30,7 @@ export interface variant {
   on_hand_quantity: number;
   status?: (typeof PRODUCT_STATUSES)[keyof typeof PRODUCT_STATUSES];
 }
-export type UiVariant = Partial<variant> & { ui_id: number; isEditing: boolean };
+export type EditableVariant = Partial<variant> & { clientId: string };
 export interface product {
   id: number;
   title: string;

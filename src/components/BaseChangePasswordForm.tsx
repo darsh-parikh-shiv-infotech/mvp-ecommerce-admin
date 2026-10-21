@@ -16,6 +16,7 @@ import { ChangePasswordValidation } from '../utils/validations/ChangePasswordVal
 interface BaseChangePasswordFormProps {
   email: string;
   loading: boolean;
+  resendHandler: () => Promise<boolean>;
   submitHandler: (
     email: string,
     otp: number,
@@ -30,7 +31,12 @@ interface ChangePasswordFormValues {
   confirmNewPassword: string;
 }
 
-const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePasswordFormProps) => {
+const BaseChangePasswordForm = ({
+  email,
+  submitHandler,
+  resendHandler,
+  loading,
+}: BaseChangePasswordFormProps) => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -49,7 +55,10 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
     return () => clearInterval(timer);
   }, [timeLeft]);
   const handleResendOtp = async () => {
-    if (!canResend) return;
+    if (!canResend || loading) return;
+    const wasResent = await resendHandler();
+    if (!wasResent) return;
+
     setTimeLeft(RESEND_OTP_TIME);
     setCanResend(false);
   };
@@ -234,8 +243,10 @@ const BaseChangePasswordForm = ({ email, submitHandler, loading }: BaseChangePas
       <div className="w-full text-end">
         {canResend ? (
           <button
+            type="button"
             className="font-medium text-sm text-red-600 hover:border-b"
             onClick={handleResendOtp}
+            disabled={loading}
           >
             {UI_TEXT.AUTH.RESEND_OTP}
           </button>

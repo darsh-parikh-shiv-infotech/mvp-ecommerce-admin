@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { changePassword, checkAuthStatus, forgotPassword, loginUser } from './AuthThunk';
-import { AUTH_STATE_ERROR_MESSAGES, STORAGE_KEYS } from '../../../utils/constants/constants';
+import { AUTH_STATE_ERROR_MESSAGES } from '../../../utils/constants/constants';
 
 export interface AuthUser {
   id: string;
@@ -38,9 +38,11 @@ const authSlice = createSlice({
       state.user = action.payload;
     },
     logout: (state) => {
-      localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
       state.user = null;
+      state.token = null;
       state.isAuthenticated = false;
+      state.loading = false;
+      state.isInitializing = false;
     },
   },
   extraReducers: (builder) => {

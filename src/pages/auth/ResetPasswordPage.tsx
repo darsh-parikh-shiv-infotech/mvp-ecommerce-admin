@@ -42,6 +42,17 @@ const ResetPasswordPage = () => {
     }
     return;
   };
+  const resendOtpHandler = async () => {
+    const result = await dispatch(forgotPassword({ email: changePasswordEmail }));
+    if (forgotPassword.fulfilled.match(result)) {
+      toast.success(result.payload.message || UI_TEXT.AUTH.OTP_RESENT);
+      return true;
+    }
+    toast.error(
+      result.payload?.message ?? result.error.message ?? AUTH_ERROR_MESSAGES.FORGOT_PASSWORD_FAILED,
+    );
+    return false;
+  };
   const resetPasswordHandler = async (
     email: string,
     otp: number,
@@ -52,7 +63,7 @@ const ResetPasswordPage = () => {
 
     if (changePassword.fulfilled.match(result)) {
       setChangePasswordEmail(FORM_DEFAULTS.EMPTY_STRING);
-      return navigate(ROUTES.HOME);
+      return navigate(ROUTES.LOGIN);
     }
     if (changePassword.rejected.match(result)) {
       toast.error(
@@ -94,6 +105,7 @@ const ResetPasswordPage = () => {
                 loading={loading}
                 email={changePasswordEmail}
                 submitHandler={resetPasswordHandler}
+                resendHandler={resendOtpHandler}
               />
             )}
           </div>

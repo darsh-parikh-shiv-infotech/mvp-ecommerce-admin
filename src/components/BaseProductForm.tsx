@@ -75,7 +75,7 @@ const BaseProductForm = ({
   }, [dispatch]);
   useEffect(() => {
     if (setIsEnabled) setIsEnabled(!formik.dirty);
-  }, [formik.dirty]);
+  }, [formik.dirty, setIsEnabled]);
 
   const titleError =
     formik.touched.title || formik.submitCount > 0 ? formik.errors.title : undefined;

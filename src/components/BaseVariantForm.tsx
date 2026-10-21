@@ -1,7 +1,7 @@
 import { useFormik } from 'formik';
 import FormField from './common/FormField';
 import { API_ENDPOINTS, FORM_DEFAULTS, UI_TEXT } from '../utils/constants/constants';
-import type { UiVariant } from '../store/slices/product/productSlice';
+import type { EditableVariant } from '../store/slices/product/productSlice';
 import { VariantFormSchama } from '../utils/validations/VariantFormValidation';
 import { useState } from 'react';
 import { useAppDispatch } from '../utils/hooks/hooks';
@@ -10,7 +10,7 @@ import { toast } from 'react-toastify';
 
 export interface VariantFormValues {
   id: number | undefined;
-  ui_id: number | undefined;
+  clientId?: string;
   title: string;
   code: string;
   fake_price: number;
@@ -18,9 +18,8 @@ export interface VariantFormValues {
   available_quantity: number;
   on_hand_quantity: number;
   product_variant_image: string[];
-  isEditing: boolean;
 }
-type updateFormValuesProp = Partial<UiVariant> | null;
+type updateFormValuesProp = EditableVariant | null;
 interface BaseAttributeFormProp {
   onSubmit: (values: VariantFormValues) => void;
   updateFormValues?: updateFormValuesProp;
@@ -33,7 +32,7 @@ const BaseVariantForm = ({ onSubmit, updateFormValues }: BaseAttributeFormProp) 
   const formik = useFormik<VariantFormValues>({
     initialValues: {
       id: updateFormValues?.id ?? undefined,
-      ui_id: updateFormValues?.ui_id ?? undefined,
+      clientId: updateFormValues?.clientId,
       title: updateFormValues?.title ?? FORM_DEFAULTS.EMPTY_STRING,
       available_quantity: updateFormValues?.available_quantity ?? FORM_DEFAULTS.ZERO,
       on_hand_quantity: updateFormValues?.on_hand_quantity ?? FORM_DEFAULTS.ZERO,
@@ -41,7 +40,6 @@ const BaseVariantForm = ({ onSubmit, updateFormValues }: BaseAttributeFormProp) 
       fake_price: updateFormValues?.fake_price ?? FORM_DEFAULTS.ZERO,
       price: updateFormValues?.price ?? FORM_DEFAULTS.ZERO,
       product_variant_image: updateFormValues?.product_variant_image ?? [],
-      isEditing: updateFormValues?.isEditing ?? false,
     },
     enableReinitialize: true,
     validationSchema: VariantFormSchama,
@@ -81,7 +79,6 @@ const BaseVariantForm = ({ onSubmit, updateFormValues }: BaseAttributeFormProp) 
   return (
     <form onSubmit={formik.handleSubmit} noValidate className="flex flex-col gap-4 mx-5">
       <input type="hidden" id="id" {...formik.getFieldProps('id')} />
-      <input type="hidden" id="ui_id" {...formik.getFieldProps('ui_id')} />
       <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2">
         <FormField
           labelText={UI_TEXT.VARIANT.TITLE}
@@ -242,7 +239,7 @@ const BaseVariantForm = ({ onSubmit, updateFormValues }: BaseAttributeFormProp) 
       </div>
       <div className="w-full my-2">
         <button className="w-full p-4 bg-red-200 hover:bg-red-100 hover:cursor-pointer">
-          {updateFormValues?.isEditing ? UI_TEXT.VARIANT.EDIT : UI_TEXT.VARIANT.ADD}
+          {updateFormValues ? UI_TEXT.VARIANT.EDIT : UI_TEXT.VARIANT.ADD}
         </button>
       </div>
     </form>

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAppDispatch } from '../../utils/hooks/hooks';
 import { logout } from '../../store/slices/auth/authSlice';
 import { ROUTES, UI_TEXT } from '../../utils/constants/constants';
+import { clearStoredAuthToken } from '../../utils/authStorage';
 
 const NavLinks: { text: string; linkPath: string; logo: ReactNode }[] = [
   {
@@ -62,6 +63,7 @@ const NavLinks: { text: string; linkPath: string; logo: ReactNode }[] = [
 const Sidebar = () => {
   const dispatch = useAppDispatch();
   const handleSignOut = () => {
+    clearStoredAuthToken();
     dispatch(logout());
   };
   return (

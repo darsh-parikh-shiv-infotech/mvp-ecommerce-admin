@@ -1,10 +1,10 @@
-import type { UiVariant } from '../store/slices/product/productSlice';
+import type { EditableVariant, variant } from '../store/slices/product/productSlice';
 import { API_ENDPOINTS, UI_TEXT } from '../utils/constants/constants';
 
 interface BaseVariantTableProp {
-  variantList: Partial<UiVariant>[] | null;
-  editHandler?: (id: number | undefined) => void;
-  deleteHandler?: (variant_id: number | undefined) => void;
+  variantList: (EditableVariant | variant)[] | null;
+  editHandler?: (variant: EditableVariant) => void;
+  deleteHandler?: (variant: EditableVariant) => void;
 }
 const BaseVariantTable = ({ variantList, editHandler, deleteHandler }: BaseVariantTableProp) => {
   if (!variantList || variantList.length == 0) return;
@@ -40,7 +40,7 @@ const BaseVariantTable = ({ variantList, editHandler, deleteHandler }: BaseVaria
         {variantList.map((variant, index) => {
           return (
             <tr
-              key={index}
+              key={'clientId' in variant ? variant.clientId : `server-${variant.id}`}
               className={`${index % 2 == 0 ? 'bg-neutral-primary-soft' : 'bg-red-50'} border-b border-default hover:bg-neutral-secondary-medium`}
             >
               <td scope="row" className="px-6 py-4 font-medium text-heading whitespace-nowrap">
@@ -74,14 +74,18 @@ const BaseVariantTable = ({ variantList, editHandler, deleteHandler }: BaseVaria
                   <div className="flex flex-row gap-2">
                     <button
                       type="button"
-                      onClick={() => editHandler(variant.id || variant.ui_id)}
+                      onClick={() => {
+                        if ('clientId' in variant) editHandler(variant);
+                      }}
                       className="font-medium text-fg-brand hover:underline hover:cursor-pointer"
                     >
                       {UI_TEXT.COMMON.EDIT}
                     </button>
                     <button
                       type="button"
-                      onClick={() => deleteHandler(variant.ui_id || variant.id)}
+                      onClick={() => {
+                        if ('clientId' in variant) deleteHandler(variant);
+                      }}
                       className="font-medium text-fg-danger hover:underline hover:cursor-pointer"
                     >
                       {UI_TEXT.COMMON.DELETE}

@@ -1,5 +1,5 @@
 import { RouterProvider } from 'react-router-dom';
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { useAppDispatch, useAppSelector } from './utils/hooks/hooks';
 import { checkAuthStatus } from './store/slices/auth/AuthThunk';
@@ -20,7 +20,9 @@ function App() {
   }
   return (
     <>
-      <RouterProvider router={router} />
+      <Suspense fallback={<FullLoader SpinnerTitle={UI_TEXT.COMMON.LOADING} />}>
+        <RouterProvider router={router} />
+      </Suspense>
       <ToastContainer
         position={TOAST_CONFIG.POSITION}
         autoClose={APP_CONFIG.TOAST_AUTO_CLOSE_MS}

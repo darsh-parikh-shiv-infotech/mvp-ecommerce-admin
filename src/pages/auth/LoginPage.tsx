@@ -17,7 +17,7 @@ const LoginPage = () => {
   const submitHandler = async (email: string, password: string) => {
     const result = await dispatch(loginUser({ email, password }));
     if (loginUser.fulfilled.match(result)) {
-      const authStatusResult = await await dispatch(checkAuthStatus());
+      const authStatusResult = await dispatch(checkAuthStatus());
       if (checkAuthStatus.fulfilled.match(authStatusResult)) {
         return navigate(ROUTES.HOME);
       } else if (checkAuthStatus.rejected.match(authStatusResult)) {

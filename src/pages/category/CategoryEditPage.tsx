@@ -26,7 +26,7 @@ const CategoryEditPage = () => {
     if (state?.from) {
       navigate(state.from);
     } else {
-      navigate(ROUTES.PRODUCT);
+      navigate(ROUTES.CATEGORY);
     }
   };
   const { isLoading, selectedCategory, error } = useAppSelector((state) => state.category);
@@ -44,9 +44,9 @@ const CategoryEditPage = () => {
       fetchData(Number(id));
     } else {
       toast.error(VALIDATION_MESSAGES.INVALID_REQUEST_AT_LOAD);
-      navigate('/category');
+      navigate(ROUTES.CATEGORY);
     }
-  }, [id]);
+  }, [dispatch, id, navigate]);
 
   const editFormSubmitHandler = async (name: string) => {
     const result = await dispatch(editCategory({ id: Number(id), name }));
@@ -71,7 +71,7 @@ const CategoryEditPage = () => {
           <div className="flex flex-col gap-4 items-center text-center text-2xl font-semibold">
             {error || CATEGORY_STATE_ERROR_MESSAGES.FETCH_FAILED}
             <Link
-              to={'/product'}
+              to={ROUTES.CATEGORY}
               className="text-sm w-fit bg-blue-300 rounded-md hover:opacity-70 hover:cursor-pointer p-3"
             >
               Return To Product Home Page
