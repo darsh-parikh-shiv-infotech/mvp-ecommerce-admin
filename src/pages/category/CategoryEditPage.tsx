@@ -90,15 +90,15 @@ const CategoryEditPage = () => {
   return (
     <div className="w-full max-w-screen-sm mx-auto my-9">
       <div className="flex flex-col gap-5">
-        <div className="flex gap-2 justify-between">
-          <span className="text-2xl">{UI_TEXT.CATEGORY.EDIT_FORM_TITLE}</span>
+        <div className="flex flex-col-reverse md:flex-row md:justify-between gap-2">
+          <span className="text-lg font-semibold md:text-2xl text-center">{UI_TEXT.CATEGORY.EDIT_FORM_TITLE}</span>
 
           <button
             type="button"
             onClick={handleBack}
-            className="p-2 rounded-md font-semibold hover:underline hover:cursor-pointer text-sm"
+            className="inline-flex items-center gap-1 self-end md:block p-2 rounded-md hover:underline hover:cursor-pointer text-xs "
           >
-            <span className="text-lg">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
+            <span className="text-md">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
             {UI_TEXT.PRODUCT.BACK_TO_LISTING}
           </button>
         </div>

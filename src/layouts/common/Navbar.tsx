@@ -21,7 +21,7 @@ const Navbar = () => {
               data-drawer-toggle="top-bar-sidebar"
               aria-controls="top-bar-sidebar"
               type="button"
-              className="text-heading bg-transparent box-border border border-transparent hover:bg-neutral-secondary-medium focus:ring-4 focus:ring-black/25 font-medium leading-5 rounded-base text-sm p-2 focus:outline-none inline-flex sm:hidden"
+              className="text-heading bg-transparent box-border border border-transparent hover:bg-neutral-secondary-medium focus:ring-4 focus:ring-black/25 font-medium leading-5 rounded-base text-sm p-2 focus:outline-none inline-flex md:hidden"
             >
               <span className="sr-only">{UI_TEXT.COMMON.OPEN_SIDEBAR}</span>
               <svg

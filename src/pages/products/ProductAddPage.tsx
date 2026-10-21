@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import BaseProductForm, {
   type newProductInfoProp,
   type ProductFormValues,
@@ -16,12 +16,25 @@ import FullLoader from '../../components/common/FullLoader';
 import { createVariantClientId, toProductVariantPayload } from '../../utils/common/productVariants';
 import { RequestStatus } from '../../store/slices/common';
 
+type NavigationState = {
+  from?: string;
+};
 const ProductAddPage = () => {
   const [step, setStep] = useState<1 | 2>(1);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const state = location.state as NavigationState | null;
+  const handleBack = () => {
+    if (state?.from) {
+      navigate(state.from);
+    } else {
+      navigate(ROUTES.CATEGORY);
+    }
+  };
+
   const [secondStepEnable, setSecondStepEnable] = useState(false);
   const [newProductInfo, setNewProductInfo] = useState<newProductInfoProp>(null);
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
   const { requests } = useAppSelector((state) => state.product);
   const { status: createStatus } = requests.create;
@@ -118,26 +131,30 @@ const ProductAddPage = () => {
   if (isLoading) return <FullLoader />;
   return (
     <div className="w-full flex flex-col gap-4 my-4">
-      <div className="flex gap-2 justify-between">
-        <span className="text-3xl font-bold">{UI_TEXT.PRODUCT.ADD_TITLE}</span>
-        <Link to={ROUTES.PRODUCT} className="p-2 rounded-md font-semibold hover:underline text-sm">
-          <span className="text-lg">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
+      <div className="flex flex-col-reverse md:flex-row md:justify-between gap-2">
+        <span className="text-lg font-semibold md:text-2xl text-center">{UI_TEXT.PRODUCT.ADD_TITLE}</span>
+        <button
+          type="button"
+          onClick={handleBack}
+          className="inline-flex items-center gap-1 self-end md:block p-2 rounded-md hover:underline hover:cursor-pointer text-xs "
+        >
+          <span className="text-md">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
           {UI_TEXT.PRODUCT.BACK_TO_LISTING}
-        </Link>
+        </button>
       </div>
 
       <div className="w-full flex flex-row gap-2 border-b border-red-300 ">
         <button
           type="button"
           onClick={() => setStep(1)}
-          className={`p-4 hover:cursor-pointer ${step == 1 && 'bg-red-100'}`}
+          className={`text-xs lg:text-md p-4 hover:cursor-pointer ${step == 1 && 'bg-red-100'}`}
         >
           {UI_TEXT.PRODUCT_FORM.BASE_INFO}
         </button>
         <button
           type="button"
           onClick={() => setStep(2)}
-          className={`p-4 hover:cursor-pointer ${step == 2 && 'bg-red-100'} disabled:opacity-20 disabled:bg-none`}
+          className={`text-xs lg:text-md p-4 hover:cursor-pointer ${step == 2 && 'bg-red-100'} disabled:opacity-20 disabled:bg-none`}
           disabled={!secondStepEnable}
         >
           {UI_TEXT.PRODUCT_FORM.VARIANT_INFO}

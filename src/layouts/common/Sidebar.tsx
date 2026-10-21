@@ -69,10 +69,10 @@ const Sidebar = () => {
   return (
     <aside
       id="top-bar-sidebar"
-      className="fixed top-12 left-0 z-40 w-55 sm:w-50 h-full transition-transform -translate-x-full sm:translate-x-0 bg-red-100"
+      className="fixed top-12 left-0 z-40 w-45 md:w-55 h-full transition-transform -translate-x-full md:translate-x-0 bg-red-100"
       aria-label={UI_TEXT.COMMON.SIDEBAR}
     >
-      <div className="h-[90%] flex flex-col justify-between px-3 py-4 overflow-y-auto border-e border-default">
+      <div className="h-[90%] mt-2 flex flex-col justify-between px-3 py-4 overflow-y-auto border-e border-default">
         <ul className="space-y-2 font-medium">
           {NavLinks.map((navLink, index) => {
             return (
@@ -85,7 +85,7 @@ const Sidebar = () => {
         <button
           type="button"
           onClick={handleSignOut}
-          className="inline-flex gap-2 items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading hover:cursor-pointer rounded"
+          className="inline-flex gap-2 items-center text-xs md:text-md w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading hover:cursor-pointer rounded"
           role="menuitem"
         >
           <svg
@@ -121,7 +121,7 @@ const NavLink = ({ linkPath, text, logo }: NavLinkProp) => {
   return (
     <Link
       to={linkPath}
-      className="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary group"
+      className="flex items-center text-xs md:text-md px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary group"
     >
       {logo}
       <span className="ms-3">{text}</span>

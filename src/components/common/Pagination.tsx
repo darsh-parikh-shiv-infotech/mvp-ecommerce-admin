@@ -31,10 +31,10 @@ const Pagination = ({
 
   return (
     <nav
-      className="flex items-center flex-column flex-wrap md:flex-row justify-between p-4"
+      className="flex items-center flex-column flex-wrap md:flex-row md:justify-between p-4"
       aria-label={UI_TEXT.COMMON.TABLE_NAVIGATION}
     >
-      <span className="text-sm font-normal text-body mb-4 md:mb-0 block w-full md:inline md:w-auto">
+      <span className="text-2xs md:text-sm font-normal text-body mb-4 md:mb-0 block w-full md:inline md:w-auto">
         {UI_TEXT.COMMON.SHOWING}{' '}
         <span className="font-semibold text-heading">
           {firstItem}
@@ -43,13 +43,13 @@ const Pagination = ({
         </span>{' '}
         {UI_TEXT.COMMON.OF} <span className="font-semibold text-heading">{totalItems}</span>
       </span>
-      <ul className="flex -space-x-px text-sm">
+      <ul className="flex justify-between -space-x-px text-2xs md:text-sm">
         <li>
           <button
             type="button"
             onClick={() => onPageChange(Math.max(APP_CONFIG.FIRST_PAGE, currentPage - 1))}
             disabled={currentPage <= APP_CONFIG.FIRST_PAGE}
-            className="flex items-center justify-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading font-medium rounded-s-base text-sm px-3 h-9 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center justify-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading font-medium rounded-s-base text-2xs md:text-sm px-3 h-9 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {UI_TEXT.COMMON.PREVIOUS}
           </button>
@@ -60,7 +60,7 @@ const Pagination = ({
               type="button"
               onClick={() => onPageChange(page)}
               aria-current={currentPage === page ? 'page' : undefined}
-              className={`flex items-center justify-center box-border border border-default-medium font-medium text-sm px-3 h-9 ${currentPage === page ? 'bg-red-100 text-heading' : 'text-body bg-neutral-secondary-medium hover:bg-neutral-tertiary-medium hover:text-heading'}`}
+              className={`flex items-center justify-center box-border border border-default-medium font-medium text-2xs md:text-sm px-3 h-9 ${currentPage === page ? 'bg-red-100 text-heading' : 'text-body bg-neutral-secondary-medium hover:bg-neutral-tertiary-medium hover:text-heading'}`}
             >
               {page}
             </button>
@@ -71,7 +71,7 @@ const Pagination = ({
             type="button"
             onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage >= totalPages}
-            className="flex items-center justify-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading font-medium rounded-e-base text-sm px-3 h-9 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center justify-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading font-medium rounded-e-base text-2xs md:text-sm px-3 h-9 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {UI_TEXT.COMMON.NEXT}
           </button>

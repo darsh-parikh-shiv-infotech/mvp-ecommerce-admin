@@ -51,18 +51,19 @@ const ProductSingleViewPage = () => {
   }, [fetchData, id]);
 
   return (
-    <div className="mt-2 mx-5">
-      <div className="flex gap-2 justify-between">
-        <span className="text-3xl font-bold">{UI_TEXT.PRODUCT.VIEW_TITLE}</span>
-        <button
-          type="button"
-          onClick={handleBack}
-          className="p-2 rounded-md font-semibold hover:underline hover:cursor-pointer text-sm"
-        >
-          <span className="text-lg">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
-          {UI_TEXT.PRODUCT.BACK_TO_LISTING}
-        </button>
-      </div>
+    <div className='mt-7'>
+      <div className="flex flex-col-reverse md:flex-row md:justify-between gap-2">
+          <span className="text-lg font-semibold md:text-2xl text-center">{UI_TEXT.PRODUCT.VIEW_TITLE}</span>
+
+          <button
+            type="button"
+            onClick={handleBack}
+            className="inline-flex items-center gap-1 self-end md:block p-2 rounded-md hover:underline hover:cursor-pointer text-xs "
+          >
+            <span className="text-md">{UI_TEXT.COMMON.BACK_ARROW} </span>{' '}
+            {UI_TEXT.PRODUCT.BACK_TO_LISTING}
+          </button>
+        </div>
       {isLoading && <Spinner />}
       {!isLoading && !error && selectedProduct && <ProductTable product={selectedProduct} />}
 
@@ -78,7 +79,7 @@ interface ProductTableProp {
 }
 const ProductTable = ({ product }: ProductTableProp) => {
   return (
-    <div className="w-full grid grid-cols-1 md:grid-cols-[30vw_50vw] gap-7 mt-5">
+    <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[30vw_50vw] gap-7 mt-5">
       <div className="w-full h-full flex items-center justify-center">
         <img
           className="w-full h-full shrink-0"
@@ -91,8 +92,8 @@ const ProductTable = ({ product }: ProductTableProp) => {
         />
       </div>
       <div className="w-full my-2">
-        <table className="w-full text-sm text-body">
-          <caption className="text-start font-bold underline text-lg mb-2">
+        <table className="w-full text-2xs md:text-sm text-body">
+          <caption className="text-start font-bold underline text-sm md:text-lg mb-2">
             {UI_TEXT.PRODUCT.DETAILS}
           </caption>
           <tbody>

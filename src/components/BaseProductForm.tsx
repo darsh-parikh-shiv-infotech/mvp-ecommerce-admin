@@ -222,7 +222,7 @@ const BaseProductForm = ({
             {UI_TEXT.PRODUCT.UPLOAD_IMAGE}
             <span className="text-red-600">{UI_TEXT.COMMON.REQUIRED_MARKER}</span>
           </label>
-          <div className="w-full grid grid-cols-2">
+          <div className="w-full grid grid-cols-1 md:grid-cols-2">
             <div className="flex items-center justify-center">
               <label
                 htmlFor="dropzone-file"
