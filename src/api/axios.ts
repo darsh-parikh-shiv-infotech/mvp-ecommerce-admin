@@ -14,7 +14,7 @@ import {
 import { clearStoredAuthToken } from '../utils/common/authStorage';
 
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_API_ADMIN_BASE_URL,
+  baseURL: '/api',
   timeout: APP_CONFIG.API_TIMEOUT_MS,
   headers: {
     [HTTP_HEADERS.CONTENT_TYPE]: HTTP_HEADERS.JSON,
